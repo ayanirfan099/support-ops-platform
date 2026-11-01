@@ -13,7 +13,7 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
   },
   webServer: {
-    command: "pnpm --filter @supportops/web start -- --port 3000",
+    command: "pnpm --filter @supportops/web start",
     url: "http://localhost:3000/sign-in",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
