@@ -143,6 +143,10 @@ export async function getTicket(organizationId: string, ticketId: string) {
         orderBy: { createdAt: "asc" },
         include: { actor: { select: { id: true, name: true } } },
       },
+      triageSuggestions: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      },
     },
   });
   if (!ticket) throw new TicketNotFoundError();

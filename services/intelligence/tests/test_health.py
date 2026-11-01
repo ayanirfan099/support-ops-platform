@@ -10,5 +10,5 @@ def test_health_is_explicitly_liveness_only() -> None:
     assert response.json() == {
         "status": "ok",
         "service": "intelligence",
-        "milestone": "M1",
+        "milestone": "M3",
     }

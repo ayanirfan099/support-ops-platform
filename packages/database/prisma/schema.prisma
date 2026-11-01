@@ -37,6 +37,22 @@ enum TicketActivityType {
   note_added
   tag_added
   tag_removed
+  triage_suggested
+  triage_reviewed
+  knowledge_searched
+}
+
+enum TicketQueue {
+  billing
+  account
+  technical
+  sales
+}
+
+enum TriageReviewStatus {
+  pending
+  accepted
+  overridden
 }
 
 model User {
@@ -47,13 +63,16 @@ model User {
   image         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  memberships   Membership[]
-  ticketMessages TicketMessage[]
-  internalNotes InternalNote[]
-  createdAssignments Assignment[] @relation("AssignmentActor")
-  ticketActivities TicketActivity[]
+  sessions                   Session[]
+  accounts                   Account[]
+  memberships                Membership[]
+  ticketMessages             TicketMessage[]
+  internalNotes              InternalNote[]
+  createdAssignments         Assignment[]                 @relation("AssignmentActor")
+  ticketActivities           TicketActivity[]
+  createdKnowledgeDocuments  KnowledgeDocument[]          @relation("KnowledgeDocumentCreator")
+  knowledgeSearches          KnowledgeSearch[]             @relation("KnowledgeSearchActor")
+  reviewedTriageSuggestions ClassificationSuggestion[]    @relation("TriageReviewer")
 
   @@map("users")
 }
@@ -117,6 +136,9 @@ model Organization {
   tickets     Ticket[]
   tags        Tag[]
   activities  TicketActivity[]
+  knowledgeDocuments        KnowledgeDocument[]
+  knowledgeSearches         KnowledgeSearch[]
+  classificationSuggestions ClassificationSuggestion[]
 
   @@map("organizations")
 }
@@ -154,25 +176,28 @@ model Customer {
 }
 
 model Ticket {
-  id              String              @id @default(cuid())
-  organizationId  String
-  customerId      String
-  subject         String
-  description     String              @db.Text
-  status          TicketStatus        @default(new)
-  priority        TicketPriority      @default(normal)
-  slaTargetAt     DateTime?
-  resolvedAt      DateTime?
-  version         Int                 @default(0)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  customer        Customer            @relation(fields: [customerId, organizationId], references: [id, organizationId], onDelete: Restrict)
-  messages        TicketMessage[]
-  internalNotes   InternalNote[]
-  assignments     Assignment[]
-  tags            TicketTag[]
-  activities      TicketActivity[]
+  id                String                       @id @default(cuid())
+  organizationId    String
+  customerId        String
+  subject           String
+  description       String                       @db.Text
+  status            TicketStatus                 @default(new)
+  priority          TicketPriority               @default(normal)
+  queue             TicketQueue?
+  slaTargetAt       DateTime?
+  resolvedAt        DateTime?
+  version           Int                          @default(0)
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+  organization      Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer          Customer                     @relation(fields: [customerId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  messages          TicketMessage[]
+  internalNotes     InternalNote[]
+  assignments       Assignment[]
+  tags              TicketTag[]
+  activities        TicketActivity[]
+  knowledgeSearches KnowledgeSearch[]
+  triageSuggestions ClassificationSuggestion[]
 
   @@unique([id, organizationId])
   @@index([organizationId, status, updatedAt])
@@ -266,4 +291,105 @@ model TicketActivity {
 
   @@index([organizationId, ticketId, createdAt])
   @@map("ticket_activities")
+}
+
+
+model KnowledgeDocument {
+  id             String       @id @default(cuid())
+  organizationId String
+  createdByUserId String?
+  title          String
+  content        String       @db.Text
+  contentHash    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator        User?        @relation("KnowledgeDocumentCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  chunks         KnowledgeChunk[]
+
+  @@unique([id, organizationId])
+  @@index([organizationId, updatedAt])
+  @@index([organizationId, title])
+  @@map("knowledge_documents")
+}
+
+model KnowledgeChunk {
+  id             String   @id @default(cuid())
+  organizationId String
+  documentId     String
+  ordinal        Int
+  content        String   @db.Text
+  startLine      Int
+  endLine        Int
+  createdAt      DateTime @default(now())
+  document       KnowledgeDocument @relation(fields: [documentId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  citations      KnowledgeCitation[]
+
+  @@unique([id, organizationId])
+  @@unique([documentId, ordinal])
+  @@index([organizationId, documentId])
+  @@map("knowledge_chunks")
+}
+
+model KnowledgeSearch {
+  id             String       @id @default(cuid())
+  organizationId String
+  ticketId       String
+  actorUserId    String?
+  queryHash      String
+  rankerVersion  String
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ticket         Ticket       @relation(fields: [ticketId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  actor          User?        @relation("KnowledgeSearchActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  citations      KnowledgeCitation[]
+
+  @@unique([id, organizationId])
+  @@index([organizationId, ticketId, createdAt])
+  @@map("knowledge_searches")
+}
+
+model KnowledgeCitation {
+  id             String          @id @default(cuid())
+  organizationId String
+  searchId       String
+  chunkId        String
+  rank           Int
+  score          Float
+  titleSnapshot  String
+  excerpt        String          @db.Text
+  startLine      Int
+  endLine        Int
+  createdAt      DateTime        @default(now())
+  search         KnowledgeSearch @relation(fields: [searchId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  chunk          KnowledgeChunk  @relation(fields: [chunkId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  @@unique([searchId, rank])
+  @@index([organizationId, chunkId])
+  @@map("knowledge_citations")
+}
+
+model ClassificationSuggestion {
+  id                String            @id @default(cuid())
+  organizationId    String
+  ticketId          String
+  suggestedQueue    TicketQueue?
+  scores            Json
+  modelVersion      String
+  abstained         Boolean           @default(false)
+  abstentionReason  String?
+  reviewStatus      TriageReviewStatus @default(pending)
+  reviewedQueue     TicketQueue?
+  reviewReason      String?
+  reviewerUserId    String?
+  reviewedAt        DateTime?
+  createdAt         DateTime          @default(now())
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ticket            Ticket            @relation(fields: [ticketId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  reviewer          User?             @relation("TriageReviewer", fields: [reviewerUserId], references: [id], onDelete: SetNull)
+
+  @@unique([id, organizationId])
+  @@index([organizationId, ticketId, createdAt])
+  @@index([organizationId, reviewStatus, createdAt])
+  @@map("classification_suggestions")
 }

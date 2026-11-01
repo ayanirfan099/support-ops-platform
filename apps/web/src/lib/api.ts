@@ -4,13 +4,18 @@ import {
   MembershipRequiredError,
   RoleRequiredError,
 } from "@supportops/contracts";
+import { IntelligenceUnavailableError } from "./intelligence";
+import {
+  KnowledgeDocumentNotFoundError,
+  TriageSuggestionNotFoundError,
+} from "./knowledge-triage";
 import {
   TicketConflictError,
   TicketNotFoundError,
   TicketTransitionError,
 } from "./tickets";
 
-const MAX_JSON_BYTES = 64 * 1024;
+const MAX_JSON_BYTES = 256 * 1024;
 
 export class InvalidRequestError extends Error {
   readonly status = 400;
@@ -97,7 +102,16 @@ export function apiErrorResponse(error: unknown) {
       { status: 403 },
     );
   }
-  if (error instanceof TicketNotFoundError) {
+  if (error instanceof KnowledgeDocumentNotFoundError) {
+    return NextResponse.json(
+      { error: "Knowledge document not found" },
+      { status: 404 },
+    );
+  }
+  if (
+    error instanceof TicketNotFoundError ||
+    error instanceof TriageSuggestionNotFoundError
+  ) {
     return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
   }
   if (
@@ -107,6 +121,12 @@ export function apiErrorResponse(error: unknown) {
     return NextResponse.json(
       { error: "Ticket update conflict. Refresh and try again." },
       { status: 409 },
+    );
+  }
+  if (error instanceof IntelligenceUnavailableError) {
+    return NextResponse.json(
+      { error: "Knowledge or triage service is temporarily unavailable" },
+      { status: 503 },
     );
   }
   if (error instanceof PayloadTooLargeError) {

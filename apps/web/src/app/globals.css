@@ -909,6 +909,195 @@ h1 {
     flex-direction: column;
   }
 }
+.knowledge-list,
+.triage-suggestions {
+  display: grid;
+  gap: 13px;
+}
+.knowledge-document-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.knowledge-document-card h2 {
+  margin: 4px 0 7px;
+  font-size: 16px;
+}
+.knowledge-document-card .muted-small {
+  margin: 0;
+}
+.document-id {
+  color: #8b92a4;
+  font: 10px var(--mono);
+}
+.knowledge-document-actions {
+  display: grid;
+  justify-items: end;
+  gap: 9px;
+}
+.knowledge-delete-control {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+.knowledge-delete-control .button {
+  min-height: 34px;
+  color: #8a3737;
+}
+.knowledge-delete-control .form-status {
+  margin: 0;
+  text-align: right;
+}
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 35px;
+}
+.empty-state h2,
+.empty-state p {
+  margin: 0;
+}
+.empty-state h2 {
+  font-size: 17px;
+}
+.empty-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--mint);
+  color: #2f6c57;
+  font-size: 22px;
+}
+.evidence-panel,
+.triage-panel {
+  min-width: 0;
+  padding: 20px;
+}
+.evidence-panel .panel-copy,
+.triage-panel .panel-copy {
+  margin: -6px 0 15px;
+}
+.evidence-form {
+  margin-bottom: 14px;
+}
+.evidence-form input {
+  min-height: 40px;
+}
+.evidence-results {
+  display: grid;
+  gap: 10px;
+}
+.evidence-result-note {
+  color: #42506b;
+  font-size: 12px;
+  font-weight: 600;
+}
+.evidence-results .form-status,
+.triage-panel .form-status {
+  margin: 0;
+}
+.citation-card,
+.triage-suggestion {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e5e9f1;
+  border-radius: 10px;
+  background: #fbfcff;
+}
+.citation-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  color: #3c455b;
+  font-size: 12px;
+}
+.citation-heading strong {
+  overflow-wrap: anywhere;
+}
+.citation-source,
+.muted-small {
+  color: #81899d;
+  font: 10px var(--mono);
+}
+.citation-source {
+  flex: 0 0 auto;
+}
+.citation-card p {
+  margin: 10px 0;
+  color: #303a52;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.citation-card .message-visibility {
+  display: inline-block;
+}
+.triage-panel > .button {
+  margin-bottom: 13px;
+}
+.triage-suggestion {
+  display: grid;
+  gap: 10px;
+  background: #fff;
+}
+.triage-suggestion .muted-small,
+.triage-suggestion .score-warning,
+.triage-suggestion .review-outcome {
+  margin: 0;
+}
+.score-warning {
+  color: #85621f;
+  font-size: 10px;
+}
+.score-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  color: #697287;
+  font: 10px var(--mono);
+}
+.score-list span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f5f6fa;
+}
+.score-list strong {
+  color: var(--ink);
+}
+.triage-review-form {
+  max-width: none;
+  margin-top: 4px;
+  gap: 10px;
+}
+.triage-review-form .field-label input,
+.triage-review-form .field-label select {
+  min-height: 38px;
+}
+.optional-label {
+  color: #8991a4;
+  font-weight: 400;
+}
+.review-outcome {
+  padding: 9px;
+  border-radius: 7px;
+  background: #eef7f1;
+  color: #347050;
+  font-size: 11px;
+  line-height: 1.5;
+  text-transform: capitalize;
+}
+.success-status {
+  margin: 4px 0 10px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

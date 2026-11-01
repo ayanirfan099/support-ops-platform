@@ -77,3 +77,5 @@ export const OWNER_MANAGER: readonly MemberRole[] = ["owner", "manager"];
 export const OWNER_ONLY: readonly MemberRole[] = ["owner"];
 
 export * from "./tickets";
+export * from "./intelligence";
+export * from "./knowledge";
