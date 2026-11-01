@@ -12,9 +12,12 @@ const password = process.env.DEMO_ACCOUNT_PASSWORD ?? "SupportOps-Demo-2026!";
 const organizationName = "Acme Support Demo";
 const organizationSlug = "acme-support-demo";
 
+let stage = "find-seed-user";
+
 async function main() {
   let user = await db.user.findUnique({ where: { email } });
   if (!user) {
+    stage = "create-seed-user";
     const baseURL = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
     const response = await auth.handler(
       new Request(`${baseURL}/api/auth/sign-up/email`, {
@@ -31,6 +34,7 @@ async function main() {
         `Seed account could not be created (HTTP ${response.status}).`,
       );
     }
+    stage = "verify-seed-user";
     user = await db.user.findUnique({ where: { email } });
     if (!user) {
       throw new Error(
@@ -39,12 +43,14 @@ async function main() {
     }
   }
 
+  stage = "upsert-demo-organization";
   const organization = await db.organization.upsert({
     where: { slug: organizationSlug },
     update: { name: organizationName },
     create: { name: organizationName, slug: organizationSlug },
   });
 
+  stage = "upsert-owner-membership";
   await db.membership.upsert({
     where: {
       userId_organizationId: {
@@ -69,10 +75,13 @@ async function main() {
 
 main()
   .catch((error: unknown) => {
-    console.error("Seed failed", {
-      errorType: error instanceof Error ? error.name : "UnknownError",
-      message: error instanceof Error ? error.message : "Unexpected seed error",
-    });
+    const errorType = error instanceof Error ? error.name : "UnknownError";
+    console.error("Seed failed", { stage, errorType });
+    if (process.env.GITHUB_ACTIONS === "true") {
+      console.error(
+        `::error title=Demo seed failure::Stage ${stage} failed (${errorType}).`,
+      );
+    }
     process.exitCode = 1;
   })
   .finally(async () => {
