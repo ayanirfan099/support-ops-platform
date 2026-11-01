@@ -59,6 +59,10 @@ jobs:
         run: pnpm typecheck
       - name: Apply database migrations
         run: pnpm --filter @supportops/database prisma:deploy
+      - name: Seed fictional demo data twice
+        run: |
+          pnpm db:seed
+          pnpm db:seed
       - name: Run unit and database integration tests
         run: |
           pnpm test
