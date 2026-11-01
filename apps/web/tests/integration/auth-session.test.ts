@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { randomUUID } from "node:crypto";
 import { db } from "@supportops/database";
-import { auth } from "@/lib/auth";
+import { auth } from "../../src/lib/auth";
 
 const email = `auth-fixture-${randomUUID()}@example.invalid`;
 const password = "Fixture-password-2026!";
