@@ -36,16 +36,24 @@ test("agent signs in, works a ticket, and resolves it", async ({ page }) => {
     page.getByText("I am locked out after updating my password.").first(),
   ).toBeVisible();
 
-  await page.getByLabel("Priority").selectOption("urgent");
+  await page
+    .getByRole("region", { name: "Set priority" })
+    .getByRole("combobox")
+    .selectOption("urgent");
   await page.getByRole("button", { name: "Save priority" }).click();
   await expect(page.locator(".priority-label")).toHaveText("urgent");
   await expect(
     page.getByText("Priority changed from normal to urgent"),
   ).toBeVisible();
 
-  await page.getByLabel("Agent").selectOption({ label: "Jordan Lee" });
+  await page
+    .getByRole("region", { name: "Assign to an agent" })
+    .getByRole("combobox")
+    .selectOption({ label: "Jordan Lee" });
   await page.getByRole("button", { name: "Assign" }).click();
-  await expect(page.getByText("Jordan Lee").first()).toBeVisible();
+  await expect(page.locator(".ticket-facts dd").nth(1)).toHaveText(
+    "Jordan Lee",
+  );
 
   await page.getByLabel("Add a tag").fill("account-access");
   await page.getByRole("button", { name: "Add tag" }).click();
