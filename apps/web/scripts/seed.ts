@@ -78,7 +78,7 @@ main()
     const errorType = error instanceof Error ? error.name : "UnknownError";
     console.error("Seed failed", { stage, errorType });
     if (process.env.GITHUB_ACTIONS === "true") {
-      console.error(
+      console.log(
         `::error title=Demo seed failure::Stage ${stage} failed (${errorType}).`,
       );
     }
