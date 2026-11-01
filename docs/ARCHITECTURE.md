@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M0 target design, 2026-11-01. Components below are planned until implemented and verified.
+**Status:** M1 foundation scaffold, 2026-11-01. Identity, workspace membership, and service skeletons have been added; ticket, knowledge, and analytics domains remain planned. The diagram is the target system, not a claim that every component is implemented or verified.
 
 ## System context
 
@@ -14,7 +14,7 @@ flowchart LR
     Web -->|tenant-scoped evidence request| Intelligence
 ```
 
-The browser communicates with the Next.js application using same-origin routes and session cookies. It never connects directly to PostgreSQL or the intelligence service. Next.js is the sole authority for identity, tenant selection, authorization, and persistence. The internal FastAPI service is stateless with respect to identity and must not expose an unauthenticated public interface; the web server calls it over the local/container network. It receives only the minimum text and bounded, workspace-scoped evidence needed for a request. CI must not require network access, paid services, or downloaded model weights.
+The browser communicates with the Next.js application using same-origin routes and session cookies. Better Auth provides email/password authentication and database-backed sessions; session cookies are HTTP-only and SameSite=Lax. It never connects directly to PostgreSQL or the intelligence service. Next.js is the sole authority for identity, tenant selection, authorization, and persistence. Email verification/delivery is not configured in M1, so public registration is not production-ready. The internal FastAPI service is stateless with respect to identity and must not expose an unauthenticated public interface; the web server calls it over the local/container network. It receives only the minimum text and bounded, workspace-scoped evidence needed for a request. CI must not require network access, paid services, or downloaded model weights.
 
 ## Monorepo layout
 
@@ -28,7 +28,7 @@ infra/docker/             Local PostgreSQL and service orchestration
 docs/                      Product, architecture, security, decisions, operations
 ```
 
-Use a lockfile-driven JavaScript workspace (pnpm is the current proposal) plus Python dependency lock/configuration. Keep the number of tools and runtime services small. Avoid duplicating generated Prisma artifacts or hand-maintaining parallel API schemas: OpenAPI can be generated from FastAPI and consumed/generated types can be checked in a later milestone if the boundary warrants it.
+Use the pnpm 10.28.2 lockfile-driven JavaScript workspace plus the `uv.lock` Python dependency lock. The foundation currently pins Next.js 16, React 19, Prisma 6, Better Auth, PostgreSQL 16 for local/CI, and FastAPI/Pydantic. Keep the number of tools and runtime services small. Avoid duplicating generated Prisma artifacts or hand-maintaining parallel API schemas: OpenAPI can be generated from FastAPI and consumed/generated types can be checked in a later milestone if the boundary warrants it.
 
 ## Request and data flow
 

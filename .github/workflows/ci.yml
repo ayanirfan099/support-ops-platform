@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.9-alpine
+        env:
+          POSTGRES_DB: supportops
+          POSTGRES_USER: supportops
+          POSTGRES_PASSWORD: supportops-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U supportops -d supportops"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://supportops:supportops-ci-only@localhost:5432/supportops?schema=public
+      BETTER_AUTH_SECRET: ci-only-secret-not-for-use-outside-automated-tests-0001
+      BETTER_AUTH_URL: http://localhost:3000
+      DEMO_ACCOUNT_EMAIL: demo@supportops.local
+      DEMO_ACCOUNT_PASSWORD: SupportOps-Demo-2026!
+      CI: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client
+        run: pnpm db:generate
+      - name: Check formatting and lint
+        run: |
+          pnpm format:check
+          pnpm lint
+      - name: Type check
+        run: pnpm typecheck
+      - name: Apply database migrations
+        run: pnpm --filter @supportops/database prisma:deploy
+      - name: Run unit and database integration tests
+        run: |
+          pnpm test
+          pnpm test:integration
+      - name: Build web application
+        run: pnpm build
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: services/intelligence/uv.lock
+      - name: Install Python dependencies from lockfile
+        run: uv sync --locked --all-extras
+        working-directory: services/intelligence
+      - name: Check Python formatting and lint
+        run: |
+          uv run --locked ruff format --check .
+          uv run --locked ruff check .
+        working-directory: services/intelligence
+      - name: Run Python tests
+        run: uv run --locked pytest -q
+        working-directory: services/intelligence
