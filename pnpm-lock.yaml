@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@playwright/test':
+        specifier: 1.56.1
+        version: 1.56.1
       '@types/node':
         specifier: 22.15.30
         version: 22.15.30
@@ -49,19 +52,22 @@ importers:
         version: link:../../packages/ui
       better-auth:
         specifier: 1.7.15
-        version: 1.7.15(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3))(next@16.4.3(@babel/core@7.29.7)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.19.3(typescript@5.8.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4(@types/node@22.15.30)(jiti@2.7.0)(tsx@4.19.4))
+        version: 1.7.15(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3))(next@16.4.3(@babel/core@7.29.7)(@playwright/test@1.56.1)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.19.3(typescript@5.8.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4(@types/node@22.15.30)(jiti@2.7.0)(tsx@4.19.4))
       dotenv:
         specifier: 16.5.0
         version: 16.5.0
       next:
         specifier: 16.4.3
-        version: 16.4.3(@babel/core@7.29.7)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 16.4.3(@babel/core@7.29.7)(@playwright/test@1.56.1)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: 19.2.0
         version: 19.2.0
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
     devDependencies:
       tsx:
         specifier: 4.19.4
@@ -73,8 +79,8 @@ importers:
   packages/contracts:
     dependencies:
       zod:
-        specifier: 3.24.3
-        version: 3.24.3
+        specifier: 4.6.7
+        version: 4.6.7
 
   packages/database:
     dependencies:
@@ -895,6 +901,11 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@playwright/test@1.56.1':
+    resolution: {integrity: sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@prisma/client@6.19.3':
     resolution: {integrity: sha512-mKq3jQFhjvko5LTJFHGilsuQs+W+T3Gm451NzuTDGQxwCzwXHYnIu2zGkRoW+Exq3Rob7yp2MfzSrdIiZVhrBg==}
@@ -1900,6 +1911,11 @@ packages:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -2387,6 +2403,16 @@ packages:
   pkg-types@2.4.0:
     resolution: {integrity: sha512-07Fys7iVx0X6TcviMOgogM1Lk33ZyqOezMnU79S+kffWqwolG/5W9V8EgQSeYCIfFTYVgssRbnH630Oa2+soBA==}
 
+  playwright-core@1.56.1:
+    resolution: {integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.56.1:
+    resolution: {integrity: sha512-aFi5B0WovBHTEvpM3DzXTUaeN6eN0qWnTkKx4NQaH4Wvcmc153PdaY2UBdSYKaGYw+UyWXSVyxDUg5DoPEttjw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -2845,9 +2871,6 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
-
-  zod@3.24.3:
-    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
 
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
@@ -3415,6 +3438,10 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
+  '@playwright/test@1.56.1':
+    dependencies:
+      playwright: 1.56.1
+
   '@prisma/client@6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3)':
     optionalDependencies:
       prisma: 6.19.3(typescript@5.8.3)
@@ -3869,7 +3896,7 @@ snapshots:
 
   baseline-browser-mapping@2.11.34: {}
 
-  better-auth@1.7.15(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3))(next@16.4.3(@babel/core@7.29.7)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.19.3(typescript@5.8.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4(@types/node@22.15.30)(jiti@2.7.0)(tsx@4.19.4)):
+  better-auth@1.7.15(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3))(next@16.4.3(@babel/core@7.29.7)(@playwright/test@1.56.1)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.19.3(typescript@5.8.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4(@types/node@22.15.30)(jiti@2.7.0)(tsx@4.19.4)):
     dependencies:
       '@better-auth/core': 1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.4(zod@4.6.7))(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5)
       '@better-auth/drizzle-adapter': 1.7.15(@better-auth/core@1.7.15(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.4(zod@4.6.7))(jose@6.2.14)(kysely@0.29.8)(nanostores@1.5.5))(@better-auth/utils@0.5.1)
@@ -3890,7 +3917,7 @@ snapshots:
       zod: 4.6.7
     optionalDependencies:
       '@prisma/client': 6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3)
-      next: 16.4.3(@babel/core@7.29.7)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 16.4.3(@babel/core@7.29.7)(@playwright/test@1.56.1)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       prisma: 6.19.3(typescript@5.8.3)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -4533,6 +4560,9 @@ snapshots:
     dependencies:
       is-callable: 1.2.7
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -4885,7 +4915,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@16.4.3(@babel/core@7.29.7)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  next@16.4.3(@babel/core@7.29.7)(@playwright/test@1.56.1)(@types/node@22.15.30)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       '@next/env': 16.4.3
       '@swc/helpers': 0.5.23
@@ -4904,6 +4934,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.4.3
       '@next/swc-win32-arm64-msvc': 16.4.3
       '@next/swc-win32-x64-msvc': 16.4.3
+      '@playwright/test': 1.56.1
       sharp: 0.35.5(@types/node@22.15.30)
     transitivePeerDependencies:
       - '@babel/core'
@@ -5022,6 +5053,14 @@ snapshots:
       confbox: 0.3.2
       exsolve: 1.2.0
       pathe: 2.0.3
+
+  playwright-core@1.56.1: {}
+
+  playwright@1.56.1:
+    dependencies:
+      playwright-core: 1.56.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   possible-typed-array-names@1.1.0: {}
 
@@ -5626,7 +5665,5 @@ snapshots:
   zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
       zod: 4.6.7
-
-  zod@3.24.3: {}
 
   zod@4.6.7: {}

@@ -34,6 +34,15 @@ export default async function OrganizationHome({
     select: { id: true, name: true },
   });
   if (!organization) notFound();
+  const [openCount, ticketCount] = await Promise.all([
+    db.ticket.count({
+      where: {
+        organizationId,
+        status: { in: ["new", "open", "pending"] },
+      },
+    }),
+    db.ticket.count({ where: { organizationId } }),
+  ]);
 
   return (
     <div className="app-frame">
@@ -44,9 +53,12 @@ export default async function OrganizationHome({
           <span className="nav-link active" aria-current="page">
             <span aria-hidden="true">◈</span> Overview
           </span>
-          <span className="nav-link" aria-disabled="true">
-            <span aria-hidden="true">▤</span> Tickets · M2
-          </span>
+          <Link
+            className="nav-link"
+            href={`/workspace/${organizationId}/tickets`}
+          >
+            <span aria-hidden="true">▤</span> Tickets
+          </Link>
           <span className="nav-link" aria-disabled="true">
             <span aria-hidden="true">⌕</span> Knowledge · M3
           </span>
@@ -66,22 +78,32 @@ export default async function OrganizationHome({
           <p className="kicker">Workspace · {membership.role}</p>
           <h1>{organization.name}</h1>
           <p className="lede">
-            Your workspace is ready. The foundation milestone provides account
-            and membership scaffolding; ticket operations arrive in M2.
+            Work your queue, keep customer replies distinct from private team
+            notes, and see ticket history in one place.
           </p>
           <section
             className="panel"
-            aria-labelledby="foundation-title"
+            aria-labelledby="queue-snapshot-title"
             style={{ marginTop: 28 }}
           >
-            <h2 className="panel-title" id="foundation-title">
-              Foundation is in place.
+            <h2 className="panel-title" id="queue-snapshot-title">
+              Queue snapshot
             </h2>
             <p className="panel-copy">
-              You are signed in as <strong>{session.user.email}</strong> with
-              the <strong>{membership.role}</strong> role. This page was loaded
-              only after the server confirmed your membership in this workspace.
+              Signed in as <strong>{session.user.email}</strong> ·{" "}
+              <strong>{membership.role}</strong> role. Workspace access was
+              verified on the server.
             </p>
+            <div className="queue-stats">
+              <div>
+                <strong>{openCount}</strong>
+                <span>active tickets</span>
+              </div>
+              <div>
+                <strong>{ticketCount}</strong>
+                <span>total tickets</span>
+              </div>
+            </div>
             <div
               style={{
                 display: "flex",
@@ -90,6 +112,12 @@ export default async function OrganizationHome({
                 marginTop: 20,
               }}
             >
+              <Link
+                className="button"
+                href={`/workspace/${organizationId}/tickets`}
+              >
+                Open ticket queue
+              </Link>
               <Link className="button secondary" href="/workspace">
                 Switch workspace
               </Link>
