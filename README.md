@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml)
 
-A multi-tenant support platform foundation with session-based accounts, organization membership, and server-side role checks. The M1 implementation is in progress: **ticketing, knowledge retrieval, ML triage, analytics, and in-app notifications are not implemented yet.**
+A multi-tenant support platform with session-based accounts, organization membership, server-side role checks, and a ticketing-core implementation underway. M2 adds tenant-scoped customer/ticket records, public replies, separate internal notes, assignments, tags, transitions, SLA state, activity history, and responsive queue/detail views. Knowledge retrieval, ML triage, analytics, and notifications remain future milestones.
 
-> **Status:** M1 foundation scaffold · 2026-11-01. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
+> **Status:** M1 is merged; M2 implementation and CI are complete in open PR #3, awaiting review. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
 
-No app screenshot is included yet; it will be captured from the running application in a later milestone. The CI badge links to the repository's actual workflow; it does not imply that a run has already passed.
+The CI badge links to the repository's workflow and is not a claim that this unmerged M2 branch has passed. No app screenshot is included yet.
 
 ## Architecture at a glance
 
@@ -30,7 +30,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-Open `http://localhost:3000`. The fictional local seed account is `demo@supportops.example.invalid` / `SupportOps-Demo-2026!` (unless overridden in `.env`). The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
+Open `http://localhost:3000`. The fictional local seed accounts are `demo@supportops.example.invalid` / `SupportOps-Demo-2026!` (owner) and `agent@supportops.example.invalid` / `SupportOps-Agent-2026!` (agent), unless overridden in `.env`. The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
 
 Start the Python service in a separate terminal:
 
@@ -50,19 +50,20 @@ uv run --locked ruff format --check .
 
 The intelligence service currently exposes a liveness endpoint only; it does not classify tickets or retrieve knowledge yet.
 
-## Implemented in the foundation
+## Implemented in M1 and the current M2 branch
 
 - Monorepo workspace with locked pnpm and Python dependencies plus shared contracts, database, and accessible UI packages.
-- Local PostgreSQL Compose service and Prisma schema/initial migration for users, sessions, accounts, organizations, and memberships.
+- Local PostgreSQL Compose service and Prisma migrations for identity, workspace membership, customers, tickets, messages, internal notes, assignment, tags, and activity history (M2 migration awaits CI validation).
 - Better Auth email/password endpoints, database-backed sessions, HTTP-only/Lax cookies, configured request rate limiting, and sign-out.
 - Organization creation that atomically makes the creator an owner; shared membership/role authorization helpers.
 - Workspace shell that only displays an organization after the signed-in user’s membership is confirmed.
-- Synthetic local seed account/workspace; FastAPI health endpoint.
-- Unit, PostgreSQL integration, auth/session integration test suites and GitHub Actions workflow authored for local CI. Integration tests require PostgreSQL.
+- Fictional local owner/agent seed accounts and workspace; FastAPI health endpoint.
+- Ticket queue, create/detail views, public replies, distinct internal notes, role-gated assignment, tags, validated status transitions, SLA states, activity timeline, and bounded filtering/pagination.
+- Unit/privacy tests and a Playwright login-to-resolve journey are authored; the M2 browser/database checks still need CI verification.
 
 ## Not implemented yet
 
-Ticket lifecycle/messages/internal notes/assignment/SLA, customer management, knowledge ingestion/search/citations, classifier and human override, audit/notification workflows, dashboard metrics, and Playwright journey remain future milestones. There are no actual ticket records or AI suggestions in this version. No real support data, external model, paid API, or remote image/font asset is used.
+Knowledge ingestion/search/citations, classifier and human override, expanded audit/notification workflows, and dashboard metrics remain future milestones. M2 ticket flows and the Playwright login-to-resolve journey passed CI in run `41312214670` and await review in PR #3. No real support data, external model, paid API, or remote image/font asset is used.
 
 ## Verification
 
@@ -78,6 +79,8 @@ pnpm --filter @supportops/database prisma:deploy
 pnpm test
 pnpm test:integration
 pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e
 cd services/intelligence
 uv sync --locked --all-extras
 uv run --locked ruff format --check .
@@ -91,4 +94,4 @@ Database integration tests require a migrated local PostgreSQL database. CI uses
 
 No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
 
-M1 is not marked complete until database migration, session/integration tests, type checks, and production build are verified in CI. M2 adds persistent ticket operations and a complete login-to-resolve Playwright journey. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.
+M1 is complete after its merged PR and CI run. M2 implementation checks passed in CI run `41312214670` and the changes are pending review in PR #3. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.

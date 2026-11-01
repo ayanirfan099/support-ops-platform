@@ -11,9 +11,8 @@ export default function HomePage() {
         </p>
         <h1 id="welcome-title">A calmer way to run the queue.</h1>
         <p className="lede">
-          A foundation build for secure workspaces and human-supervised support
-          operations. Ticketing and evidence workflows are coming in later
-          milestones.
+          Secure workspaces and a human-supervised ticket queue, with public
+          replies kept separate from team-only notes.
         </p>
         <div
           style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 24 }}
@@ -26,8 +25,9 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="notice">
-          Foundation preview only. Do not enter customer data; ticketing,
-          tenant-safe workflows, and operational review are not implemented yet.
+          Development preview only. Use fictional data. Public replies are saved
+          to the ticket but are not emailed; knowledge and AI workflows are not
+          implemented yet.
         </div>
       </section>
     </main>

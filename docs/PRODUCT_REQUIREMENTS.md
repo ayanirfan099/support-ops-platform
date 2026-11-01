@@ -1,6 +1,6 @@
 # SupportOps product requirements
 
-**Status:** Requirements baseline · 2026-11-01. M0 is documented; M1 foundation implementation is in progress. Requirements describe intended behavior unless explicitly identified as implemented in the README.
+**Status:** Requirements baseline · 2026-11-01. M0 and M1 are complete. M2 implementation and CI acceptance checks are complete in open PR #3, pending review. Requirements describe intended behavior unless explicitly identified as implemented in the README.
 
 ## Product outcome
 
@@ -77,9 +77,9 @@ Membership is scoped to an organization. Every authenticated request resolves th
 
 ## Milestone acceptance checklist
 
-- [ ] **M0 — Product and architecture:** requirements, architecture diagram, threat model, architecture decision record, and this milestone checklist reviewed.
-- [ ] **M1 — Foundation (in progress):** installable monorepo; local PostgreSQL Compose; Prisma schema and migration; session auth, workspace membership, authorization; shared contracts; fictional seed data; lint/type/test/build CI. Do not mark complete until the clean CI workflow and PostgreSQL-backed checks pass.
-- [ ] **M2 — Ticketing core:** persistent customer/ticket/message/note/assignment/tag/activity flows; tenant and role tests; responsive shell; login-to-resolve browser journey.
+- [x] **M0 — Product and architecture:** requirements, architecture diagram, threat model, architecture decision record, and this milestone checklist reviewed.
+- [x] **M1 — Foundation:** installable monorepo; local PostgreSQL Compose; Prisma schema and migration; session auth, workspace membership, authorization; shared contracts; fictional seed data; lint/type/test/build CI. CI verification passed in run `41309229644`; see the M1 PR and session record.
+- [x] **M2 — Ticketing core:** persistent customer/ticket/message/note/assignment/tag/activity flows; tenant and role tests; responsive shell; login-to-resolve browser journey. CI run `41312214670` passed formatting, lint, type checks, PostgreSQL migrations, seed-twice, unit/integration tests, production build, Playwright journey, and Python checks. Implementation is proposed in open PR #3 and awaits review; it has not been merged.
 - [ ] **M3 — Knowledge and ML:** bounded ingestion; lexical evidence and exact citations; confidence-gated classifier; accept/override audit; API contract and failure tests; offline CI.
 - [ ] **M4 — Analytics and polish:** dashboard metrics, notifications, restricted audit UI, accessibility and performance review, loading/error/empty states, screenshots/social preview, deployment guide and production-gap checklist.
 - [ ] **M5 — Release candidate:** clean-checkout, migration, seed, Docker, unit/integration/browser/Python tests, dependency and secret scan, changelog and release proposal. Publishing `v1.0.0` requires explicit user approval.

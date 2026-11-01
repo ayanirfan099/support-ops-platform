@@ -13,11 +13,13 @@
     "typecheck": "pnpm --filter @supportops/contracts typecheck && pnpm --filter @supportops/ui typecheck && pnpm --filter @supportops/database typecheck && pnpm --filter @supportops/web typecheck",
     "test": "vitest run --config vitest.unit.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
     "db:generate": "pnpm --filter @supportops/database prisma:generate",
     "db:migrate": "pnpm --filter @supportops/database prisma:migrate",
     "db:seed": "pnpm --filter @supportops/web seed"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@types/node": "22.15.30",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.6",

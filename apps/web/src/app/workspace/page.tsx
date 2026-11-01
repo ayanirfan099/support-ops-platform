@@ -41,9 +41,9 @@ export default async function WorkspacePage({
           </p>
         </div>
         <div className="rail-foot">
-          <strong>Foundation build</strong>
+          <strong>Support workspace</strong>
           <br />
-          Workspace identity and membership are implemented. Ticket data is not.
+          Choose a workspace to view its ticket queue.
         </div>
       </aside>
       <div className="main-panel">
