@@ -4,7 +4,7 @@
 
 A multi-tenant support platform with session-based accounts, organization membership, server-side role checks, and a ticketing-core implementation underway. M2 adds tenant-scoped customer/ticket records, public replies, separate internal notes, assignments, tags, transitions, SLA state, activity history, and responsive queue/detail views. Knowledge retrieval, ML triage, analytics, and notifications remain future milestones.
 
-> **Status:** M1 is merged; M2 is in progress on a separate review branch. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
+> **Status:** M1 is merged; M2 implementation and CI are complete in open PR #3, awaiting review. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
 
 The CI badge links to the repository's workflow and is not a claim that this unmerged M2 branch has passed. No app screenshot is included yet.
 
@@ -63,7 +63,7 @@ The intelligence service currently exposes a liveness endpoint only; it does not
 
 ## Not implemented yet
 
-Knowledge ingestion/search/citations, classifier and human override, expanded audit/notification workflows, and dashboard metrics remain future milestones. M2 ticket flows and a Playwright login-to-resolve journey are implemented in the current review branch but are not yet CI-verified. No real support data, external model, paid API, or remote image/font asset is used.
+Knowledge ingestion/search/citations, classifier and human override, expanded audit/notification workflows, and dashboard metrics remain future milestones. M2 ticket flows and the Playwright login-to-resolve journey passed CI in run `41312214670` and await review in PR #3. No real support data, external model, paid API, or remote image/font asset is used.
 
 ## Verification
 
@@ -94,4 +94,4 @@ Database integration tests require a migrated local PostgreSQL database. CI uses
 
 No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
 
-M1 is complete after its merged PR and CI run. M2 remains in progress until schema migration, tenant/privacy tests, type checks, build, and the login-to-resolve Playwright journey pass in CI. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.
+M1 is complete after its merged PR and CI run. M2 implementation checks passed in CI run `41312214670` and the changes are pending review in PR #3. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.

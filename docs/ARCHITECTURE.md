@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M2 ticketing implementation underway, 2026-11-01. Identity and workspace membership are merged; tenant-scoped ticket operations and the related data model/UI are on a separate review branch and await CI validation. Knowledge and analytics remain planned. The diagram is the target system, not a claim that every component is implemented or verified.
+**Status:** M2 ticketing implementation complete in open PR #3, 2026-11-01. Identity and workspace membership are merged; tenant-scoped ticket operations and the related data model/UI passed CI run `41312214670` and await review. Knowledge and analytics remain planned. The diagram is the target system, not a claim that every component is implemented or verified.
 
 ## System context
 

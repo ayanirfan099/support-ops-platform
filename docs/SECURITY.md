@@ -1,6 +1,6 @@
 # Security and privacy threat model
 
-**Status:** Design and implementation notes (M0–M2), 2026-11-01. M1 configures Better Auth, HTTP-only/Lax session cookies, and membership-scoped access. The M2 branch adds tenant-scoped ticket queries, separately stored internal notes, same-origin and bounded JSON checks, role-gated assignment, and an allowlisted customer-view projection; these controls still require automated integration/browser verification and review. This is not a security audit, certification, or production-readiness claim.
+**Status:** Design and implementation notes (M0–M2), 2026-11-01. M1 configures Better Auth, HTTP-only/Lax session cookies, and membership-scoped access. The M2 branch adds tenant-scoped ticket queries, separately stored internal notes, same-origin and bounded JSON checks, role-gated assignment, and an allowlisted customer-view projection; automated integration and browser checks passed in CI run `41312214670`. The implementation still awaits review. This is not a security audit, certification, or production-readiness claim.
 
 ## Scope and assumptions
 
