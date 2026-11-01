@@ -1,6 +1,6 @@
 # ADR 0001: Monorepo, PostgreSQL, and human-supervised intelligence boundary
 
-- **Status:** Accepted for initial implementation planning
+- **Status:** Accepted; M1 foundation scaffolded
 - **Date:** 2026-11-01
 - **Decision owners:** SupportOps maintainers
 
@@ -12,7 +12,7 @@ SupportOps needs a reviewable first release that combines tenant-scoped support 
 
 1. Use a monorepo with Next.js App Router + React + TypeScript for the application/UI, FastAPI + Pydantic for internal classification/retrieval APIs, PostgreSQL as the source of truth, and Prisma for schema/migrations/client.
 2. Keep shared validation/contracts in a small TypeScript package and use Pydantic at the Python boundary. Keep web routes/domain services responsible for authentication, authorization, tenant scoping, and persistence.
-3. Use a maintained session-based authentication library with HTTP-only cookies. Select a concrete library and establish its tested configuration during M1; do not hand-roll cryptography or session primitives.
+3. Use Better Auth with Prisma-backed sessions and email/password login, HTTP-only/SameSite=Lax cookies, and library request rate limiting. The M1 local foundation does not configure email verification/delivery and is not suitable for public production registration. Do not hand-roll cryptography or session primitives.
 4. Begin with deterministic local lexical evidence search and a small local classifier with explicit abstention. No paid APIs, model downloads, autonomous actions, or vector store are required for the first implementation.
 5. Persist tenant-owned records with explicit organization scope. Verify membership and role in centralized server-side services on every operation. PostgreSQL RLS may be evaluated as defense-in-depth, but is not a substitute for service authorization and is not assumed until transaction/connection behavior is tested.
 6. Use Docker Compose for local PostgreSQL and services. Do not add Redis, a message queue, object storage, or a vector database until a measured requirement justifies the operational cost.
@@ -40,9 +40,9 @@ SupportOps needs a reviewable first release that combines tenant-scoped support 
 
 The following repositories were inspected on 2026-11-01 via their public GitHub metadata, root contents, and selected README/code:
 
-- [`evidence-search`](https://github.com/ayanirfan099/evidence-search): its README describes BM25 + TF-IDF rank fusion, exact line citations, bounded UTF-8 input, no generated answers, and explicit score limitations. Reuse the *design principles* of line provenance, inspectable excerpts, and ranking-vs-certainty distinction. No source/data is copied.
-- [`ticket-triage-classifier`](https://github.com/ayanirfan099/ticket-triage-classifier): its README and `model.py` describe a local TF-IDF/logistic-regression baseline, known-term/confidence abstention, train/test overlap checks, supporting terms, and caveats around uncalibrated scores and tiny synthetic data. Reuse the *review/abstention/evaluation principles* only. No source/data/model is copied.
-- [`paper-evidence-retrieval`](https://github.com/ayanirfan099/paper-evidence-retrieval): its README describes page-aware citations, bounded PDF processing, local lexical/vector options, conservative evidence output, and fixture-vs-benchmark distinctions. Reuse the *provenance, bounds, and evidence/answer distinction* only. No source/data/model/artifact is copied.
+- [`evidence-search`](https://github.com/ayanirfan099/evidence-search): its README describes BM25 + TF-IDF rank fusion, exact line citations, bounded UTF-8 input, no generated answers, and explicit score limitations. Reuse the _design principles_ of line provenance, inspectable excerpts, and ranking-vs-certainty distinction. No source/data is copied.
+- [`ticket-triage-classifier`](https://github.com/ayanirfan099/ticket-triage-classifier): its README and `model.py` describe a local TF-IDF/logistic-regression baseline, known-term/confidence abstention, train/test overlap checks, supporting terms, and caveats around uncalibrated scores and tiny synthetic data. Reuse the _review/abstention/evaluation principles_ only. No source/data/model is copied.
+- [`paper-evidence-retrieval`](https://github.com/ayanirfan099/paper-evidence-retrieval): its README describes page-aware citations, bounded PDF processing, local lexical/vector options, conservative evidence output, and fixture-vs-benchmark distinctions. Reuse the _provenance, bounds, and evidence/answer distinction_ only. No source/data/model/artifact is copied.
 
 There is no code or data reuse in M0. If implementation later reuses code, record its source, license, exact files/changes, and attribution before adding it.
 

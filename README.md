@@ -1,53 +1,94 @@
 # SupportOps — AI-Assisted Customer Support Platform
 
-SupportOps is planned as a multi-tenant support workspace for persistent ticket operations, source-backed knowledge search, and human-reviewed ML routing suggestions. **This repository currently contains the M0 product and architecture plan only; the application, database, CI workflow, and screenshots are not implemented yet.**
+[![CI](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml)
 
-> **Status:** M0 planning baseline · 2026-11-01. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made.
+A multi-tenant support platform foundation with session-based accounts, organization membership, and server-side role checks. The M1 implementation is in progress: **ticketing, knowledge retrieval, ML triage, analytics, and in-app notifications are not implemented yet.**
 
-There is no CI badge or product screenshot yet: a real badge will be added with the first verified workflow, and screenshots will be captured from the implemented application rather than fabricated.
+> **Status:** M1 foundation scaffold · 2026-11-01. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
+
+No app screenshot is included yet; it will be captured from the running application in a later milestone. The CI badge links to the repository's actual workflow; it does not imply that a run has already passed.
 
 ## Architecture at a glance
 
-Planned monorepo: Next.js App Router/React/TypeScript web app → Prisma-backed PostgreSQL for tenant-scoped workflows; a private FastAPI/Pydantic service provides bounded local lexical evidence retrieval and confidence-gated triage suggestions. The web application owns sessions, authorization, tenant selection, persistence, and human decisions. Suggestions are advisory; weak or unavailable results fall back to human review.
+Monorepo: Next.js App Router/React/TypeScript web app → Prisma-backed PostgreSQL for identity and workspace membership; a private FastAPI/Pydantic service is scaffolded for later local retrieval/classification work. Better Auth owns email/password authentication and database-backed sessions. The web app resolves each workspace membership server-side before returning workspace details. An organization ID alone never grants access.
 
 See [architecture and data flow](docs/ARCHITECTURE.md), [product requirements](docs/PRODUCT_REQUIREMENTS.md), [threat model](docs/SECURITY.md), and [ADR 0001](docs/DECISIONS/0001-architecture.md).
 
-## Current quick start
+## Local quick start
 
-There is no runnable app yet. M0 verification is documentation-only:
+Requirements: Node.js 22+, Corepack/pnpm 10.28.2, Python 3.11+, `uv`, and Docker Compose.
 
 ```sh
-git status --short
-find docs -maxdepth 2 -type f -print
+cp .env.example .env
+# Replace BETTER_AUTH_SECRET with a unique random value of at least 32 characters.
+corepack enable pnpm
+pnpm install --frozen-lockfile
+docker compose -f infra/docker/compose.yml up -d
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
 ```
 
-M1 will add the lockfile-based install commands, Docker Compose PostgreSQL startup, migration, and seed instructions. **No demo credentials exist yet.** Future demo accounts will contain fictional data and be documented only after the seeded authentication flow is implemented.
+Open `http://localhost:3000`. The fictional local seed account is `demo@supportops.example.invalid` / `SupportOps-Demo-2026!` (unless overridden in `.env`). The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
 
-## Planned capabilities
+Start the Python service in a separate terminal:
 
-- Tenant workspaces, membership, owner/manager/agent authorization.
-- Ticket lifecycle, customer-visible replies, distinct internal notes, assignment, tags, activity, and SLA risk.
-- Bounded knowledge documents with lexical evidence search and exact line/page provenance.
-- Local triage suggestions with confidence gating, abstention, human accept/override, and audit history.
-- Operational metrics, in-app notifications, and role-restricted audit views.
+```sh
+cd services/intelligence
+uv sync --locked --all-extras
+uv run --locked uvicorn supportops_intelligence.main:app --host 0.0.0.0 --port 8001
+```
 
-All are requirements, not current capabilities. The delivery checklist is in [PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md).
+Run its local tests/quality checks from `services/intelligence`:
 
-## Limitations and boundaries
+```sh
+uv run --locked pytest -q
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+```
 
-No application code, persistent schema, migrations, tests, CI, authentication, or deployment is present in this M0 baseline. The initial plan explicitly excludes autonomous customer replies, paid AI APIs, unverified accuracy claims, and premature Redis/object-storage/vector infrastructure. Do not use this repository for customer data until the relevant controls are implemented and reviewed.
+The intelligence service currently exposes a liveness endpoint only; it does not classify tickets or retrieve knowledge yet.
+
+## Implemented in the foundation
+
+- Monorepo workspace with locked pnpm and Python dependencies plus shared contracts, database, and accessible UI packages.
+- Local PostgreSQL Compose service and Prisma schema/initial migration for users, sessions, accounts, organizations, and memberships.
+- Better Auth email/password endpoints, database-backed sessions, HTTP-only/Lax cookies, configured request rate limiting, and sign-out.
+- Organization creation that atomically makes the creator an owner; shared membership/role authorization helpers.
+- Workspace shell that only displays an organization after the signed-in user’s membership is confirmed.
+- Synthetic local seed account/workspace; FastAPI health endpoint.
+- Unit, PostgreSQL integration, auth/session integration test suites and GitHub Actions workflow authored for local CI. Integration tests require PostgreSQL.
+
+## Not implemented yet
+
+Ticket lifecycle/messages/internal notes/assignment/SLA, customer management, knowledge ingestion/search/citations, classifier and human override, audit/notification workflows, dashboard metrics, and Playwright journey remain future milestones. There are no actual ticket records or AI suggestions in this version. No real support data, external model, paid API, or remote image/font asset is used.
 
 ## Verification
 
-At this stage, only the documentation files can be reviewed. There are no application test commands to claim as passing. Future CI must install from lockfiles and run formatting/lint, type checking, unit/integration tests, Python tests, and production builds without paid or network-dependent model services.
+Run from the repository root:
 
-## Milestones
+```sh
+pnpm install --frozen-lockfile
+pnpm db:generate
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm --filter @supportops/database prisma:deploy
+pnpm test
+pnpm test:integration
+pnpm build
+cd services/intelligence
+uv sync --locked --all-extras
+uv run --locked ruff format --check .
+uv run --locked ruff check .
+uv run --locked pytest -q
+```
 
-- [x] **M0 — Product and architecture:** requirements, architecture diagram, security threat model, ADR, documented milestone checklist.
-- [ ] **M1 — Foundation:** monorepo, local PostgreSQL, Prisma schema/migration, auth and memberships, contracts, fictional seed, CI.
-- [ ] **M2 — Ticketing core:** persistent workflows, tenant-isolation tests, responsive shell, end-to-end journey.
-- [ ] **M3 — Knowledge and ML:** safe ingestion, evidence/citations, confidence-gated classifier, human review/audit.
-- [ ] **M4 — Analytics and polish:** metrics, notifications, audit UI, accessibility, screenshots, deployment-gap guide.
-- [ ] **M5 — Release candidate:** clean-checkout verification and release proposal; publishing a version requires explicit approval.
+Database integration tests require a migrated local PostgreSQL database. CI uses a PostgreSQL service and local deterministic test data; it does not call paid APIs or download ML models. Local Prisma client generation and database verification are still pending in this environment because Docker/PostgreSQL is unavailable and Prisma's binary host is outside the sandbox's network allowlist. Do not interpret the commands above as a report that all of them have passed here.
 
-Each milestone should be proposed as a separate reviewable PR and must not be merged without explicit instruction. See the detailed acceptance gates in [PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md).
+## Security, limitations, and next milestone
+
+No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
+
+M1 is not marked complete until database migration, session/integration tests, type checks, and production build are verified in CI. M2 adds persistent ticket operations and a complete login-to-resolve Playwright journey. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.

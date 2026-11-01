@@ -1,6 +1,6 @@
 # SupportOps product requirements
 
-**Status:** M0 baseline, 2026-11-01. This document describes intended behavior, not implemented capabilities.
+**Status:** Requirements baseline · 2026-11-01. M0 is documented; M1 foundation implementation is in progress. Requirements describe intended behavior unless explicitly identified as implemented in the README.
 
 ## Product outcome
 
@@ -8,11 +8,11 @@ SupportOps is a multi-tenant workspace for support teams to manage customer conv
 
 ## Users and roles
 
-| Role | Intended permissions |
-| --- | --- |
-| **Owner** | Manage workspace settings and membership/roles; access all workspace operations and audit history. |
-| **Manager** | Manage ticket operations and agents; access workspace reporting and audit history. Cannot transfer ownership or change owner privileges. |
-| **Agent** | Work assigned/available tickets, reply to customers, add internal notes, search knowledge, and review/override suggestions. No membership or audit administration. |
+| Role        | Intended permissions                                                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Owner**   | Manage workspace settings and membership/roles; access all workspace operations and audit history.                                                                 |
+| **Manager** | Manage ticket operations and agents; access workspace reporting and audit history. Cannot transfer ownership or change owner privileges.                           |
+| **Agent**   | Work assigned/available tickets, reply to customers, add internal notes, search knowledge, and review/override suggestions. No membership or audit administration. |
 
 Membership is scoped to an organization. Every authenticated request resolves the active organization from the user's verified membership; a client-provided organization ID is only a selector, never proof of access. Users may belong to multiple workspaces and switch only among verified memberships.
 
@@ -78,7 +78,7 @@ Membership is scoped to an organization. Every authenticated request resolves th
 ## Milestone acceptance checklist
 
 - [ ] **M0 — Product and architecture:** requirements, architecture diagram, threat model, architecture decision record, and this milestone checklist reviewed.
-- [ ] **M1 — Foundation:** installable monorepo; local PostgreSQL Compose; Prisma schema and migration; session auth, workspace membership, authorization; shared contracts; fictional seed data; lint/type/test/build CI.
+- [ ] **M1 — Foundation (in progress):** installable monorepo; local PostgreSQL Compose; Prisma schema and migration; session auth, workspace membership, authorization; shared contracts; fictional seed data; lint/type/test/build CI. Do not mark complete until the clean CI workflow and PostgreSQL-backed checks pass.
 - [ ] **M2 — Ticketing core:** persistent customer/ticket/message/note/assignment/tag/activity flows; tenant and role tests; responsive shell; login-to-resolve browser journey.
 - [ ] **M3 — Knowledge and ML:** bounded ingestion; lexical evidence and exact citations; confidence-gated classifier; accept/override audit; API contract and failure tests; offline CI.
 - [ ] **M4 — Analytics and polish:** dashboard metrics, notifications, restricted audit UI, accessibility and performance review, loading/error/empty states, screenshots/social preview, deployment guide and production-gap checklist.
