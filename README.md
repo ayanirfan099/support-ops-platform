@@ -30,7 +30,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-Open `http://localhost:3000`. The fictional local seed account is `demo@supportops.local` / `SupportOps-Demo-2026!` (unless overridden in `.env`). The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
+Open `http://localhost:3000`. The fictional local seed account is `demo@supportops.example.invalid` / `SupportOps-Demo-2026!` (unless overridden in `.env`). The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
 
 Start the Python service in a separate terminal:
 

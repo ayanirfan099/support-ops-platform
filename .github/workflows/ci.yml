@@ -31,7 +31,7 @@ jobs:
       DATABASE_URL: postgresql://supportops:supportops-ci-only@localhost:5432/supportops?schema=public
       BETTER_AUTH_SECRET: ci-only-secret-not-for-use-outside-automated-tests-0001
       BETTER_AUTH_URL: http://localhost:3000
-      DEMO_ACCOUNT_EMAIL: demo@supportops.local
+      DEMO_ACCOUNT_EMAIL: demo@supportops.example.invalid
       DEMO_ACCOUNT_PASSWORD: SupportOps-Demo-2026!
       CI: true
     steps:

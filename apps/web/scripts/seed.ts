@@ -6,7 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
 const { db } = await import("@supportops/database");
 const { auth } = await import("../src/lib/auth");
 
-const email = process.env.DEMO_ACCOUNT_EMAIL ?? "demo@supportops.local";
+const email =
+  process.env.DEMO_ACCOUNT_EMAIL ?? "demo@supportops.example.invalid";
 const password = process.env.DEMO_ACCOUNT_PASSWORD ?? "SupportOps-Demo-2026!";
 const organizationName = "Acme Support Demo";
 const organizationSlug = "acme-support-demo";
