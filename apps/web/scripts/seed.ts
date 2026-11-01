@@ -14,13 +14,20 @@ const organizationSlug = "acme-support-demo";
 async function main() {
   let user = await db.user.findUnique({ where: { email } });
   if (!user) {
-    try {
-      await auth.api.signUpEmail({
-        body: { name: "Alex Morgan", email, password },
-      });
-    } catch {
+    const baseURL = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+    const response = await auth.handler(
+      new Request(`${baseURL}/api/auth/sign-up/email`, {
+        method: "POST",
+        headers: {
+          origin: baseURL,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ name: "Alex Morgan", email, password }),
+      }),
+    );
+    if (!response.ok) {
       throw new Error(
-        "Seed account could not be created; check database and auth configuration.",
+        `Seed account could not be created (HTTP ${response.status}).`,
       );
     }
     user = await db.user.findUnique({ where: { email } });
