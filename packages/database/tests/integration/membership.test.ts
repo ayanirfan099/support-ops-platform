@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { db } from "./index";
-import { findMembershipForUser } from "./membership";
+import { db } from "../../src/index";
+import { findMembershipForUser } from "../../src/membership";
 import { randomUUID } from "node:crypto";
 
 const userIds = [randomUUID(), randomUUID()];
