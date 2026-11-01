@@ -19,7 +19,7 @@
     "db:seed": "pnpm --filter @supportops/web seed"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.64.1",
     "@types/node": "22.15.30",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.6",
