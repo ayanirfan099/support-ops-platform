@@ -10,6 +10,7 @@
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "@supportops/contracts": "workspace:*",
     "@supportops/database": "workspace:*",
     "@supportops/ui": "workspace:*",

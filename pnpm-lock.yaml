@@ -41,6 +41,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@prisma/client':
+        specifier: 6.19.3
+        version: 6.19.3(prisma@6.19.3(typescript@5.8.3))(typescript@5.8.3)
       '@supportops/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
