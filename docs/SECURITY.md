@@ -1,6 +1,6 @@
 # Security and privacy threat model
 
-**Status:** Design and implementation notes (M0–M3), 2026-11-01. M1 and M2 are merged; M2 passed CI run `41312473904`. M3 changes are in progress on a separate branch and have not yet been verified. M3 adds bounded plain-text inputs, tenant-scoped excerpts/citations, internal bearer-token protection and request limits on FastAPI, and human review for triage. This is not a security audit, certification, or production-readiness claim.
+**Status:** Design and implementation notes (M0–M3), 2026-11-01. M1 and M2 are merged; M2 passed CI run `41312473904`. M3 passed CI run `41320365392` and is proposed in open PR #4, not yet merged. M3 adds bounded plain-text inputs, tenant-scoped excerpts/citations, internal bearer-token protection and request limits on FastAPI, and human review for triage. This is not a security audit, certification, or production-readiness claim.
 
 ## Scope and assumptions
 

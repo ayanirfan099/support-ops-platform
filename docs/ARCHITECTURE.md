@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M2 ticketing is merged in PR #3 (`150c7f4`). M3 knowledge and human-reviewed triage are in progress on a separate branch and are not yet verified. The diagram is the target system, not a claim that every component is implemented or verified.
+**Status:** M2 ticketing is merged in PR #3 (`150c7f4`). M3 knowledge and human-reviewed triage passed CI run `41320365392` and are proposed in open PR #4, not yet merged. The diagram is the target system, not a claim that every component is implemented or verified.
 
 ## System context
 

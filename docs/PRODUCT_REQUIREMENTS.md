@@ -1,6 +1,6 @@
 # SupportOps product requirements
 
-**Status:** Requirements baseline · 2026-11-01. M0–M2 are complete; M2 merged in PR #3 at `150c7f4`. M3 implementation is in progress on a separate branch and has not yet been verified. Requirements describe intended behavior unless explicitly identified as implemented in the README.
+**Status:** Requirements baseline · 2026-11-01. M0–M2 are complete; M2 merged in PR #3 at `150c7f4`. M3 passed its complete CI suite in run `41320365392` and is proposed in open PR #4; it is not yet merged. Requirements describe intended behavior unless explicitly identified as implemented in the README.
 
 ## Product outcome
 
@@ -80,7 +80,7 @@ Membership is scoped to an organization. Every authenticated request resolves th
 - [x] **M0 — Product and architecture:** requirements, architecture diagram, threat model, architecture decision record, and this milestone checklist reviewed.
 - [x] **M1 — Foundation:** installable monorepo; local PostgreSQL Compose; Prisma schema and migration; session auth, workspace membership, authorization; shared contracts; fictional seed data; lint/type/test/build CI. CI verification passed in run `41309229644`; see the M1 PR and session record.
 - [x] **M2 — Ticketing core:** persistent customer/ticket/message/note/assignment/tag/activity flows; tenant and role tests; responsive shell; login-to-resolve browser journey. CI run `41312473904` passed formatting, lint, type checks, PostgreSQL migrations, seed-twice, unit/integration tests, production build, Playwright journey, and Python checks. PR #3 merged to `main` at `150c7f4a802464d52dee32bba3a0c3f8063aef1d`.
-- [ ] **M3 — Knowledge and ML:** in progress. Bounded plain-text ingestion (no PDF/upload); lexical evidence with exact source-line citations and insufficient-evidence behavior; synthetic local classifier with abstention; persistent suggestions separate from human-selected queue; auditable accept/override. API, persistence, tenant isolation, failure, and UI checks remain to be run before marking complete.
+- [x] **M3 — Knowledge and ML:** bounded plain-text ingestion (no PDF/upload); lexical evidence with exact source-line citations and insufficient-evidence behavior; synthetic local classifier with abstention; persistent suggestions separate from human-selected queue; auditable accept/override. Complete CI run `41320365392` passed formatting, lint, typechecks, Prisma generation/migrations, seed-twice, unit/database integration tests, web build, Playwright browser journeys, and Python checks. Proposed in open PR #4; not yet merged.
 - [ ] **M4 — Analytics and polish:** dashboard metrics, notifications, restricted audit UI, accessibility and performance review, loading/error/empty states, screenshots/social preview, deployment guide and production-gap checklist.
 - [ ] **M5 — Release candidate:** clean-checkout, migration, seed, Docker, unit/integration/browser/Python tests, dependency and secret scan, changelog and release proposal. Publishing `v1.0.0` requires explicit user approval.
 
