@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
-import { MembershipRequiredError } from "@supportops/contracts";
+import {
+  MembershipRequiredError,
+  type TicketQueue,
+} from "@supportops/contracts";
 import { db } from "@supportops/database";
 import { Brand } from "@/components/brand";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -320,15 +323,18 @@ export default async function TicketDetailPage({
   );
 }
 
-function toScoreMap(
-  value: unknown,
-): Record<"billing" | "technical" | "account" | "general", number> {
-  const queues = ["billing", "technical", "account", "general"] as const;
-  const scores: Record<(typeof queues)[number], number> = {
+function toScoreMap(value: unknown): Record<TicketQueue, number> {
+  const queues: readonly TicketQueue[] = [
+    "billing",
+    "account",
+    "technical",
+    "sales",
+  ];
+  const scores: Record<TicketQueue, number> = {
     billing: 0,
-    technical: 0,
     account: 0,
-    general: 0,
+    technical: 0,
+    sales: 0,
   };
   if (value && typeof value === "object" && !Array.isArray(value)) {
     for (const queue of queues) {

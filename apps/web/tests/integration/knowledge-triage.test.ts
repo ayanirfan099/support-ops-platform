@@ -71,7 +71,7 @@ beforeAll(async () => {
     organizations.map((organization, index) =>
       db.membership.create({
         data: {
-          organizationId: organization.id,
+          organization: { connect: { id: organization.id } },
           role: "agent",
           user: {
             create: {
