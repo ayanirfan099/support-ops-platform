@@ -91,9 +91,12 @@ export default async function TicketListPage({
           >
             ▤ Tickets
           </Link>
-          <span className="nav-link" aria-disabled="true">
-            ⌕ Knowledge · M3
-          </span>
+          <Link
+            className="nav-link"
+            href={`/workspace/${organizationId}/knowledge`}
+          >
+            ⌕ Knowledge
+          </Link>
         </nav>
         <div className="rail-foot">
           <strong>{membership.role}</strong>

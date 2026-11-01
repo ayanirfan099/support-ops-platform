@@ -2,11 +2,16 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
-import { MembershipRequiredError } from "@supportops/contracts";
+import {
+  MembershipRequiredError,
+  type TicketQueue,
+} from "@supportops/contracts";
 import { db } from "@supportops/database";
 import { Brand } from "@/components/brand";
 import { SignOutButton } from "@/components/sign-out-button";
+import { KnowledgeSearch } from "@/components/knowledge-search";
 import { TicketActions } from "@/components/ticket-actions";
+import { TriagePanel } from "@/components/triage-panel";
 import { auth } from "@/lib/auth";
 import { requireWorkspaceMembership } from "@/lib/authorization";
 import { getTicket, TicketNotFoundError } from "@/lib/tickets";
@@ -69,9 +74,12 @@ export default async function TicketDetailPage({
           >
             ▤ Tickets
           </Link>
-          <span className="nav-link" aria-disabled="true">
-            ⌕ Knowledge · M3
-          </span>
+          <Link
+            className="nav-link"
+            href={`/workspace/${organizationId}/knowledge`}
+          >
+            ⌕ Knowledge
+          </Link>
         </nav>
         <div className="rail-foot">
           <strong>Ticket #{ticket.id.slice(-6).toUpperCase()}</strong>
@@ -164,6 +172,11 @@ export default async function TicketDetailPage({
                   ))}
                 </div>
               </section>
+
+              <KnowledgeSearch
+                organizationId={organizationId}
+                ticketId={ticket.id}
+              />
 
               <section
                 className="panel internal-notes-panel"
@@ -263,11 +276,32 @@ export default async function TicketDetailPage({
                     <dd>{ticket.assignee?.name ?? "Unassigned"}</dd>
                   </div>
                   <div>
+                    <dt>Human queue</dt>
+                    <dd>{ticket.queue ?? "Not set"}</dd>
+                  </div>
+                  <div>
                     <dt>Version</dt>
                     <dd>{ticket.version}</dd>
                   </div>
                 </dl>
               </section>
+              <TriagePanel
+                organizationId={organizationId}
+                ticketId={ticket.id}
+                version={ticket.version}
+                suggestions={ticket.triageSuggestions.map((suggestion) => ({
+                  id: suggestion.id,
+                  suggestedQueue: suggestion.suggestedQueue,
+                  scores: toScoreMap(suggestion.scores),
+                  modelVersion: suggestion.modelVersion,
+                  abstained: suggestion.abstained,
+                  abstentionReason: suggestion.abstentionReason,
+                  reviewStatus: suggestion.reviewStatus,
+                  reviewedQueue: suggestion.reviewedQueue,
+                  reviewReason: suggestion.reviewReason,
+                  createdAt: suggestion.createdAt.toISOString(),
+                }))}
+              />
               <TicketActions
                 organizationId={organizationId}
                 ticketId={ticket.id}
@@ -287,4 +321,27 @@ export default async function TicketDetailPage({
       </div>
     </div>
   );
+}
+
+function toScoreMap(value: unknown): Record<TicketQueue, number> {
+  const queues: readonly TicketQueue[] = [
+    "billing",
+    "account",
+    "technical",
+    "sales",
+  ];
+  const scores: Record<TicketQueue, number> = {
+    billing: 0,
+    account: 0,
+    technical: 0,
+    sales: 0,
+  };
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    for (const queue of queues) {
+      const score = (value as Record<string, unknown>)[queue];
+      if (typeof score === "number" && Number.isFinite(score))
+        scores[queue] = score;
+    }
+  }
+  return scores;
 }

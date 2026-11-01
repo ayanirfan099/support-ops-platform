@@ -13,6 +13,7 @@ export default defineConfig([
   },
   globalIgnores([
     ".next/**",
+    "**/.next/**",
     "node_modules/**",
     "coverage/**",
     "packages/database/prisma/migrations/**",

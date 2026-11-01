@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M2 ticketing implementation complete in open PR #3, 2026-11-01. Identity and workspace membership are merged; tenant-scoped ticket operations and the related data model/UI passed CI run `41312214670` and await review. Knowledge and analytics remain planned. The diagram is the target system, not a claim that every component is implemented or verified.
+**Status:** M2 ticketing is merged in PR #3 (`150c7f4`). M3 knowledge and human-reviewed triage passed CI run `41320365392` and are proposed in open PR #4, not yet merged. The diagram is the target system, not a claim that every component is implemented or verified.
 
 ## System context
 
@@ -14,7 +14,7 @@ flowchart LR
     Web -->|tenant-scoped evidence request| Intelligence
 ```
 
-The browser communicates with the Next.js application using same-origin routes and session cookies. Better Auth provides email/password authentication and database-backed sessions; session cookies are HTTP-only and SameSite=Lax. It never connects directly to PostgreSQL or the intelligence service. Next.js is the sole authority for identity, tenant selection, authorization, and persistence. Email verification and outbound message delivery are not configured; ticket replies are stored in the customer-visible conversation but are not emailed. Public registration is not production-ready. The internal FastAPI service is stateless with respect to identity and must not expose an unauthenticated public interface; the web server calls it over the local/container network. It receives only the minimum text and bounded, workspace-scoped evidence needed for a request. CI must not require network access, paid services, or downloaded model weights.
+The browser communicates with the Next.js application using same-origin routes and session cookies. Better Auth provides email/password authentication and database-backed sessions; session cookies are HTTP-only and SameSite=Lax. It never connects directly to PostgreSQL or the intelligence service. Next.js is the sole authority for identity, tenant selection, authorization, and persistence. Email verification and outbound message delivery are not configured; ticket replies are stored in the customer-visible conversation but are not emailed. Public registration is not production-ready. The internal FastAPI service is stateless with respect to identity; its private routes require a shared bearer token and are intended for the local/container network. Its public liveness endpoint returns no tenant data. The web server calls it server-to-server and sends only the minimum text and bounded, workspace-scoped evidence needed for a request. CI uses local synthetic data and must not require paid services or downloaded model weights.
 
 ## Monorepo layout
 
@@ -54,11 +54,12 @@ Audit rows are append-only by application convention; ordinary mutation endpoint
 
 ## Retrieval and triage choices
 
-- Initial retrieval is lexical, bounded, deterministic, and returns source excerpts with exact provenance. The UI must say “lexical search”; no embedding/vector dependency is planned for the first version.
+- Initial retrieval is bounded BM25 lexical ranking over at most 500 newest workspace excerpts per request, returning at most five exact line-cited snippets. The ranker uses version `bm25-k1.2-b0.75-v1` and omits scores below the documented implementation gate of 0.15; this is a conservative relevance floor, not a calibrated support probability. An empty result is labeled “insufficient evidence.” The interface must say “lexical search”; no embedding/vector dependency is planned for M3.
+- M3 ingestion accepts at most 32,000 characters and 5,000 source lines as plain text, chunks excerpts at 900 characters, and records original line coordinates. PDF, upload, OCR, and external-connector ingestion remain out of scope. The original document and chunks are tenant-scoped; deletion cascades to chunks and saved citations.
 - The existing `evidence-search` project demonstrates a useful pattern: retain source line coordinates through chunking, return inspectable excerpts, and separate a ranking score from answer correctness. SupportOps will reimplement the minimal domain-appropriate interface rather than importing the project wholesale.
-- The initial triage baseline uses a small documented queue taxonomy and confidence/known-input abstention. The existing `ticket-triage-classifier` project demonstrates train-only feature fitting, an abstention path, and explicit warnings for tiny synthetic evaluations. Its implementation/data are not copied into this repository.
+- The M3 triage baseline is a deterministic multinomial Naive Bayes classifier fit in code on 20 tiny, synthetic examples across `billing`, `account`, `technical`, and `sales`. It abstains below known-token coverage 0.20, top score 0.52, or top-two margin 0.12. These uncalibrated synthetic-fixture scores and hand-selected gates are not validated performance or correctness estimates. Only the original ticket subject/description is classified; replies and internal notes are excluded. Each suggestion remains separate from `Ticket.queue` until an agent explicitly accepts or overrides it; review state, reviewer, time, optional reason, and activity are persisted. The existing `ticket-triage-classifier` project demonstrates train-only feature fitting, an abstention path, and explicit warnings for tiny synthetic evaluations. Its implementation/data are not copied into this repository.
 - `paper-evidence-retrieval` demonstrates page-level provenance and conservative evidence presentation. SupportOps will apply provenance and abstention principles to its own bounded document format, not copy its code, artifacts, or corpus.
-- M3 will define the retrieval ranker, support gate, classifier training/evaluation data, thresholds, schema, and model version as code and documentation. Synthetic examples only; no external model downloads in tests.
+- M3 implements these methods and versions in code and this document. They are an initial inspectable baseline, not a benchmarked or calibrated model. Tests use synthetic fixtures only; no external model downloads or paid services are used.
 
 ## Failure and scaling boundaries
 

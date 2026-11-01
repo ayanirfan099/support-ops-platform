@@ -59,9 +59,12 @@ export default async function OrganizationHome({
           >
             <span aria-hidden="true">▤</span> Tickets
           </Link>
-          <span className="nav-link" aria-disabled="true">
-            <span aria-hidden="true">⌕</span> Knowledge · M3
-          </span>
+          <Link
+            className="nav-link"
+            href={`/workspace/${organizationId}/knowledge`}
+          >
+            <span aria-hidden="true">⌕</span> Knowledge
+          </Link>
         </nav>
         <div className="rail-foot">
           <strong>Human-reviewed by design</strong>
