@@ -19,7 +19,11 @@ export async function DELETE(
     const input = await readValidatedJson(request, deleteSchema);
     const membership = await requireWorkspaceMembership(input.organizationId);
     const { documentId } = await params;
-    await deleteKnowledgeDocument(membership.organizationId, documentId);
+    await deleteKnowledgeDocument(
+      membership.organizationId,
+      documentId,
+      membership.userId,
+    );
     return NextResponse.json({ deleted: true });
   } catch (error) {
     return apiErrorResponse(error);

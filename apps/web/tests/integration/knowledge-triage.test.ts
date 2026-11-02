@@ -167,14 +167,22 @@ describe("tenant-scoped knowledge and human-reviewed triage", () => {
     ).resolves.toBe(1);
 
     await expect(
-      deleteKnowledgeDocument(organizationIds[0]!, documents[1]!.id),
+      deleteKnowledgeDocument(
+        organizationIds[0]!,
+        documents[1]!.id,
+        userIds[0]!,
+      ),
     ).rejects.toBeInstanceOf(KnowledgeDocumentNotFoundError);
     expect(
       await db.knowledgeDocument.findUnique({
         where: { id: documents[1]!.id },
       }),
     ).not.toBeNull();
-    await deleteKnowledgeDocument(organizationIds[0]!, documents[0]!.id);
+    await deleteKnowledgeDocument(
+      organizationIds[0]!,
+      documents[0]!.id,
+      userIds[0]!,
+    );
     await expect(
       db.knowledgeChunk.count({
         where: { organizationId: organizationIds[0] },

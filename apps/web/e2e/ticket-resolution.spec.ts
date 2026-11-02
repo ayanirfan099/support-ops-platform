@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("agent signs in, works a ticket, and resolves it", async ({ page }) => {
+test("owner and agent work a ticket, review its audit, and receive notifications", async ({
+  page,
+}) => {
   await page.goto("/sign-in");
   await page
     .getByLabel("Email address")
@@ -10,7 +12,7 @@ test("agent signs in, works a ticket, and resolves it", async ({ page }) => {
 
   await expect(
     page.getByRole("heading", { name: "Your workspaces." }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15_000 });
   await page.getByRole("link", { name: /Acme Support Demo/ }).click();
   await expect(
     page.getByRole("heading", { name: "Queue snapshot" }),
@@ -64,10 +66,14 @@ test("agent signs in, works a ticket, and resolves it", async ({ page }) => {
 
   await page
     .getByLabel("Public reply")
-    .fill("I have reset the access link. Please try again.");
+    .fill(
+      "I have reset the access link. Please try again, @agent@supportops.example.invalid.",
+    );
   await page.getByRole("button", { name: "Add public reply" }).click();
   await expect(
-    page.getByText("I have reset the access link. Please try again."),
+    page.getByText(
+      "I have reset the access link. Please try again, a teammate.",
+    ),
   ).toBeVisible();
 
   await page
@@ -85,4 +91,40 @@ test("agent signs in, works a ticket, and resolves it", async ({ page }) => {
   await expect(
     page.getByText("Status changed from new to resolved"),
   ).toBeVisible();
+
+  await page.getByRole("link", { name: "Activity log" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Activity log" }),
+  ).toBeVisible();
+  await expect(page.getByText("Ticket status changed").first()).toBeVisible();
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page
+    .getByLabel("Email address")
+    .fill("agent@supportops.example.invalid");
+  await page.getByLabel("Password").fill("SupportOps-Agent-2026!");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your workspaces." }),
+  ).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("link", { name: /Acme Support Demo/ }).click();
+  await expect(page.getByRole("link", { name: "Activity log" })).toHaveCount(0);
+  const auditApiStatus = await page.evaluate(async () => {
+    const organizationId = window.location.pathname.split("/")[2];
+    const response = await fetch(
+      `/api/audit?organizationId=${encodeURIComponent(organizationId ?? "")}`,
+    );
+    return response.status;
+  });
+  expect(auditApiStatus).toBe(403);
+  await page.getByRole("link", { name: "Notifications", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Notifications" }),
+  ).toBeVisible();
+  await expect(page.getByText("A ticket was assigned to you.")).toBeVisible();
+  await expect(
+    page.getByText("You were mentioned in a customer-visible reply."),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Mark read" }).first().click();
+  await expect(page.getByText("Read").first()).toBeVisible();
 });

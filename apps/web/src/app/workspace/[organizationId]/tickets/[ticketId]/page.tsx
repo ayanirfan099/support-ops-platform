@@ -9,6 +9,7 @@ import {
 import { db } from "@supportops/database";
 import { Brand } from "@/components/brand";
 import { SignOutButton } from "@/components/sign-out-button";
+import { WorkspaceNav } from "@/components/workspace-nav";
 import { KnowledgeSearch } from "@/components/knowledge-search";
 import { TicketActions } from "@/components/ticket-actions";
 import { TriagePanel } from "@/components/triage-panel";
@@ -63,24 +64,11 @@ export default async function TicketDetailPage({
     <div className="app-frame">
       <aside className="rail">
         <Brand />
-        <nav aria-label="Workspace navigation">
-          <p className="workspace-label">{organization.name}</p>
-          <Link className="nav-link" href={`/workspace/${organizationId}`}>
-            ◈ Overview
-          </Link>
-          <Link
-            className="nav-link active"
-            href={`/workspace/${organizationId}/tickets`}
-          >
-            ▤ Tickets
-          </Link>
-          <Link
-            className="nav-link"
-            href={`/workspace/${organizationId}/knowledge`}
-          >
-            ⌕ Knowledge
-          </Link>
-        </nav>
+        <WorkspaceNav
+          organizationId={organizationId}
+          role={membership.role}
+          active="tickets"
+        />
         <div className="rail-foot">
           <strong>Ticket #{ticket.id.slice(-6).toUpperCase()}</strong>
           <br />

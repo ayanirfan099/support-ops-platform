@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M2 ticketing is merged in PR #3 (`150c7f4`). M3 knowledge and human-reviewed triage passed CI run `41320365392` and are proposed in open PR #4, not yet merged. The diagram is the target system, not a claim that every component is implemented or verified.
+**Status:** M1–M3 are merged in PRs #2–#4; M3 merge commit `8fa20f8` passed complete CI run `41320612182`. M4 analytics, notifications, audit history, and polish are proposed in open PR #5; full CI run `41408685016` passed. The PR is not yet merged. The diagram is the target system, not a claim that every component is production-ready or deployed.
 
 ## System context
 
@@ -35,7 +35,7 @@ Use the pnpm 10.28.2 lockfile-driven JavaScript workspace plus the `uv.lock` Pyt
 1. A request reaches a same-origin Next.js route or server-rendered page. The auth library validates the session.
 2. A shared server-side authorization helper resolves an active organization only from the user's membership records and checks the required role. Missing membership and unauthorized resource access use non-enumerating responses.
 3. The route validates input with Zod, bounds pagination/search/upload fields, and invokes a domain service. The service scopes every tenant-owned lookup and mutation by the authorized `organizationId`; resource IDs alone never authorize access.
-4. Prisma executes the operation in PostgreSQL. Sensitive state changes and their audit event are written transactionally. Records carry `organizationId` directly where applicable so scope is explicit and indexable.
+4. Prisma executes the operation in PostgreSQL. Ticket and knowledge changes, their audit event, and any resulting assignment/mention notifications are written transactionally. Dashboard aggregates read only the authorized workspace and use indexed counts/groupings; the assignment workload list is capped at 500 active assignments. Records carry `organizationId` directly where applicable so scope is explicit and indexable.
 5. For triage or search, Next.js calls FastAPI with a narrow internal request and timeout. A service outage means “review manually” or an explicit retriable search error; ticket creation and editing do not depend on intelligence availability.
 6. FastAPI validates input via Pydantic and returns typed suggestions/evidence. It does not decide ticket state, assign staff, write to PostgreSQL, or treat its scores as certainty. Next.js verifies provenance and persists suggestion/review records.
 7. The UI renders internal notes only in an authenticated agent view and labels them distinctly. Customer-facing response paths select public messages by construction.
@@ -48,7 +48,7 @@ All rows that belong to a workspace include `organizationId`, or are reached onl
 - **Support:** `Customer`, `Ticket`, `TicketMessage` (customer-visible reply record; no outbound email delivery), `InternalNote`, `Assignment`, `Tag`, ticket/tag join, and activity timeline.
 - **Knowledge:** `KnowledgeDocument`, `KnowledgeChunk` (bounded excerpt, lexical metadata, exact line/page provenance); deletion cascades to indexed excerpts.
 - **Human-supervised ML:** `ClassificationSuggestion` (suggested queue, score map, model/version, gate outcome), `Citation` (suggestion/search-to-chunk provenance), explicit human review decision/override.
-- **Operations:** `AuditEvent`, `Notification`.
+- **Operations:** `AuditEvent`, `Notification`. Notifications contain minimal assignment/mention summaries and are queried by the recipient's tenant membership; mention handles resolve only to workspace members, and recognized email handles are replaced with “a teammate” in the stored customer-visible reply. Audit events store action/target/summary and bounded metadata, never message/document bodies; owner/manager UI and API reads are tenant-scoped. Dashboard aggregates are live counts (including a 7-day window for activity/review/search measures), not historical snapshots or performance benchmarks.
 
 Audit rows are append-only by application convention; ordinary mutation endpoints never update/delete them. This is not a claim of tamper-proof storage. Timestamps are UTC. Tenant-owned queries and child-record writes verify all referenced entities belong to the same organization.
 

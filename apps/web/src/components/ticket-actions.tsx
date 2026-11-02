@@ -277,7 +277,8 @@ export function TicketActions({
         </h2>
         <p className="panel-copy">
           Visible in the customer conversation. Email delivery is not
-          configured.
+          configured. Mention a workspace teammate as @email; the handle is
+          replaced with “a teammate” in this public reply.
         </p>
         <form
           className="form-stack"
@@ -303,6 +304,10 @@ export function TicketActions({
         <h2 className="panel-title" id="internal-note-title">
           Add an internal note
         </h2>
+        <p className="panel-copy">
+          Mention a workspace teammate as @email to notify them. Mention handles
+          remain visible in this team-only note.
+        </p>
         <form
           className="form-stack"
           onSubmit={(event) => submitText(event, "notes")}

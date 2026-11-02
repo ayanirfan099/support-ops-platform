@@ -15,6 +15,7 @@ import {
   classifyTicketText,
   searchKnowledge,
 } from "./intelligence";
+import { writeAuditEvent } from "./audit";
 import { TicketConflictError, TicketNotFoundError } from "./tickets";
 
 const MAX_SEARCH_CHUNKS = 500;
@@ -51,11 +52,22 @@ export async function listKnowledgeDocuments(organizationId: string) {
 export async function deleteKnowledgeDocument(
   organizationId: string,
   documentId: string,
+  actorUserId: string,
 ) {
-  const result = await db.knowledgeDocument.deleteMany({
-    where: { id: documentId, organizationId },
+  await db.$transaction(async (transaction) => {
+    const result = await transaction.knowledgeDocument.deleteMany({
+      where: { id: documentId, organizationId },
+    });
+    if (result.count !== 1) throw new KnowledgeDocumentNotFoundError();
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "knowledge_document.deleted",
+      targetType: "knowledge_document",
+      targetId: documentId,
+      summary: "Knowledge document deleted",
+    });
   });
-  if (result.count !== 1) throw new KnowledgeDocumentNotFoundError();
 }
 
 export async function createKnowledgeDocument(
@@ -90,6 +102,15 @@ export async function createKnowledgeDocument(
         startLine: chunk.start_line,
         endLine: chunk.end_line,
       })),
+    });
+    await writeAuditEvent(transaction, {
+      organizationId: input.organizationId,
+      actorUserId: creatorUserId,
+      action: "knowledge_document.created",
+      targetType: "knowledge_document",
+      targetId: document.id,
+      summary: "Knowledge document added",
+      metadata: { chunkCount: chunked.chunks.length },
     });
     return {
       id: document.id,
@@ -256,6 +277,18 @@ export async function suggestTicketTriage(
           : `Triage suggested ${result.suggested_queue}`,
       },
     });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "triage.suggested",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Triage suggestion generated",
+      metadata: {
+        abstained: result.abstained,
+        modelVersion: result.model_version,
+      },
+    });
     return triageSuggestionResultSchema.parse({
       suggestionId: suggestion.id,
       suggestedQueue: suggestion.suggestedQueue,
@@ -338,6 +371,15 @@ export async function reviewTriageSuggestion(
             ? `Triage suggestion accepted: ${input.queue}`
             : `Triage overridden by human review: ${input.queue}`,
       },
+    });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "triage.reviewed",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Triage decision reviewed by a person",
+      metadata: { reviewStatus, queue: input.queue },
     });
     return triageReviewResultSchema.parse({
       reviewStatus,
