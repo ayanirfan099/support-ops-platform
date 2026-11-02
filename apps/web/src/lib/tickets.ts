@@ -5,6 +5,12 @@ import {
   type TicketListFilters,
 } from "@supportops/contracts";
 import { db } from "@supportops/database";
+import { writeAuditEvent } from "./audit";
+import {
+  notifyAssignedMember,
+  notifyMentionedMembers,
+  removeMentionHandlesFromCustomerReply,
+} from "./notifications";
 export { toCustomerTicketView } from "./customer-ticket-view";
 
 export class TicketNotFoundError extends Error {
@@ -212,6 +218,15 @@ export async function createTicket(
         summary: "Ticket created",
       },
     });
+    await writeAuditEvent(transaction, {
+      organizationId: input.organizationId,
+      actorUserId,
+      action: "ticket.created",
+      targetType: "ticket",
+      targetId: ticket.id,
+      summary: "Ticket created",
+      metadata: { priority: input.priority },
+    });
     return ticket;
   });
 }
@@ -258,6 +273,15 @@ export async function transitionTicket(
         summary: `Status changed from ${current.status} to ${nextStatus}`,
       },
     });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.status_changed",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Ticket status changed",
+      metadata: { from: current.status, to: nextStatus },
+    });
     return transaction.ticket.findFirstOrThrow({
       where: { id: ticketId, organizationId },
     });
@@ -295,6 +319,15 @@ export async function changeTicketPriority(
         summary: `Priority changed from ${current.priority} to ${nextPriority}`,
       },
     });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.priority_changed",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Ticket priority changed",
+      metadata: { from: current.priority, to: nextPriority },
+    });
     return transaction.ticket.findFirstOrThrow({
       where: { id: ticketId, organizationId },
     });
@@ -314,8 +347,20 @@ export async function addTicketReply(
     });
     if (updated.count !== 1) throw new TicketNotFoundError();
 
+    const mentionedEmails = await notifyMentionedMembers(transaction, {
+      organizationId,
+      ticketId,
+      actorUserId,
+      body,
+      context: "customer-visible reply",
+    });
     const message = await transaction.ticketMessage.create({
-      data: { organizationId, ticketId, authorUserId: actorUserId, body },
+      data: {
+        organizationId,
+        ticketId,
+        authorUserId: actorUserId,
+        body: removeMentionHandlesFromCustomerReply(body, mentionedEmails),
+      },
     });
     await transaction.ticketActivity.create({
       data: {
@@ -325,6 +370,15 @@ export async function addTicketReply(
         type: "reply_added",
         summary: "Customer-visible reply added",
       },
+    });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.reply_added",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Customer-visible reply added",
+      metadata: { visibility: "customer" },
     });
     return message;
   });
@@ -355,6 +409,22 @@ export async function addInternalNote(
         summary: "Internal note added",
       },
     });
+    await notifyMentionedMembers(transaction, {
+      organizationId,
+      ticketId,
+      actorUserId,
+      body,
+      context: "internal note",
+    });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.note_added",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Internal note added",
+      metadata: { visibility: "internal" },
+    });
     return note;
   });
 }
@@ -369,14 +439,22 @@ export async function assignTicket(
   return db.$transaction(async (transaction) => {
     const current = await transaction.ticket.findFirst({
       where: { id: ticketId, organizationId },
-      select: { version: true },
+      select: {
+        version: true,
+        assignments: {
+          where: { endedAt: null },
+          orderBy: [{ assignedAt: "desc" }, { id: "desc" }],
+          select: { membershipId: true },
+          take: 1,
+        },
+      },
     });
     if (!current) throw new TicketNotFoundError();
     if (current.version !== expectedVersion) throw new TicketConflictError();
 
     const target = await transaction.membership.findFirst({
       where: { id: membershipId, organizationId, role: "agent" },
-      select: { id: true, user: { select: { name: true } } },
+      select: { id: true, userId: true, user: { select: { name: true } } },
     });
     if (!target) throw new TicketNotFoundError();
 
@@ -406,6 +484,24 @@ export async function assignTicket(
         type: "assigned",
         summary: `Ticket assigned to ${target.user.name}`,
       },
+    });
+    if (current.assignments[0]?.membershipId !== target.id) {
+      await notifyAssignedMember(transaction, {
+        organizationId,
+        recipientMembershipId: target.id,
+        recipientUserId: target.userId,
+        actorUserId,
+        ticketId,
+      });
+    }
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.assigned",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Ticket assignee changed",
+      metadata: { membershipId: target.id },
     });
     return { membershipId: target.id, assigneeName: target.user.name };
   });
@@ -450,6 +546,15 @@ export async function addTicketTag(
           summary: `Tag added: ${name}`,
         },
       });
+      await writeAuditEvent(transaction, {
+        organizationId,
+        actorUserId,
+        action: "ticket.tag_added",
+        targetType: "ticket",
+        targetId: ticketId,
+        summary: "Ticket tag added",
+        metadata: { tagName: name },
+      });
     }
     return tag;
   });
@@ -485,6 +590,15 @@ export async function removeTicketTag(
         type: "tag_removed",
         summary: `Tag removed: ${name}`,
       },
+    });
+    await writeAuditEvent(transaction, {
+      organizationId,
+      actorUserId,
+      action: "ticket.tag_removed",
+      targetType: "ticket",
+      targetId: ticketId,
+      summary: "Ticket tag removed",
+      metadata: { tagName: name },
     });
     return { removed: true };
   });

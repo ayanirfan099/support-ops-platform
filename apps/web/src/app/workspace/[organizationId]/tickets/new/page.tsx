@@ -6,6 +6,7 @@ import { MembershipRequiredError } from "@supportops/contracts";
 import { db } from "@supportops/database";
 import { Brand } from "@/components/brand";
 import { SignOutButton } from "@/components/sign-out-button";
+import { WorkspaceNav } from "@/components/workspace-nav";
 import { TicketCreateForm } from "@/components/ticket-create-form";
 import { auth } from "@/lib/auth";
 import { requireWorkspaceMembership } from "@/lib/authorization";
@@ -38,18 +39,11 @@ export default async function NewTicketPage({
     <div className="app-frame">
       <aside className="rail">
         <Brand />
-        <nav aria-label="Workspace navigation">
-          <p className="workspace-label">{organization.name}</p>
-          <Link className="nav-link" href={`/workspace/${organizationId}`}>
-            ◈ Overview
-          </Link>
-          <Link
-            className="nav-link active"
-            href={`/workspace/${organizationId}/tickets`}
-          >
-            ▤ Tickets
-          </Link>
-        </nav>
+        <WorkspaceNav
+          organizationId={organizationId}
+          role={membership.role}
+          active="tickets"
+        />
         <div className="rail-foot">New support request · {membership.role}</div>
       </aside>
       <div className="main-panel">

@@ -5,6 +5,7 @@ export default defineConfig({
     include: [
       "packages/contracts/src/**/*.test.ts",
       "apps/web/src/**/*.test.ts",
+      "apps/web/tests/unit/**/*.test.ts",
     ],
     exclude: ["**/node_modules/**", "**/integration/**"],
     environment: "node",

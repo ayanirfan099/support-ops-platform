@@ -2,17 +2,17 @@
 
 [![CI](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml)
 
-A multi-tenant support platform with session-based accounts, organization membership, server-side role checks, and tenant-scoped ticket operations. M2's customer/ticket records, replies, separate internal notes, assignments, tags, transitions, SLA state, activity history, and responsive queue/detail views are merged. M3 is adding bounded plain-text knowledge search with line citations and optional human-reviewed local triage suggestions.
+A multi-tenant support workspace for ticket operations, source-backed knowledge, and human-reviewed routing. M1–M3 are merged, including ticket/customer records, separate internal notes and public replies, knowledge citations, and advisory triage. M4 is adding live workspace metrics, tenant-scoped assignment/mention notifications, and a role-restricted audit history.
 
-> **Status:** M1 and M2 are merged. M3 implementation is proposed in open PR #4; its complete CI suite passed in run `41320365392` and it is not yet merged. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
+> **Status:** M1–M3 are merged; M3 passed complete CI run `41320612182` and PR #4 merged at `8fa20f8`. M4 is in progress on its milestone branch; its final CI and PR status will be recorded once verified. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
 
-The CI badge links to the repository workflow, not to a claim that this in-progress M3 work has passed. No app screenshot is included yet.
+The CI badge links to the repository workflow and does not imply that in-progress M4 has passed. A branded social preview graphic is included; its dashboard values are labeled as illustrative sample values, not actual usage.
 
 ## Architecture at a glance
 
-Monorepo: Next.js App Router/React/TypeScript web app → Prisma-backed PostgreSQL for identity and workspace membership; a private FastAPI/Pydantic service is scaffolded for later local retrieval/classification work. Better Auth owns email/password authentication and database-backed sessions. The web app resolves each workspace membership server-side before returning workspace details. An organization ID alone never grants access.
+Monorepo: Next.js App Router/React/TypeScript web app → Prisma-backed PostgreSQL for identity and workspace data, with a private FastAPI/Pydantic service for bounded local retrieval and triage. Better Auth owns email/password authentication and database-backed sessions. The web app resolves each workspace membership server-side before returning workspace details. An organization ID alone never grants access.
 
-See [architecture and data flow](docs/ARCHITECTURE.md), [product requirements](docs/PRODUCT_REQUIREMENTS.md), [threat model](docs/SECURITY.md), and [ADR 0001](docs/DECISIONS/0001-architecture.md).
+See [architecture and data flow](docs/ARCHITECTURE.md), [product requirements](docs/PRODUCT_REQUIREMENTS.md), [threat model](docs/SECURITY.md), [deployment guidance and known production gaps](docs/DEPLOYMENT.md), the [M4 review notes](docs/M4_REVIEW.md), and [ADR 0001](docs/DECISIONS/0001-architecture.md).
 
 ## Local quick start
 
@@ -50,7 +50,7 @@ uv run --locked ruff format --check .
 
 The service exposes a public liveness endpoint and private bearer-token-protected chunking, lexical-search, and classifier routes. The classifier and ranker are deterministic synthetic/local baselines, not benchmarked performance claims; the M3 verification status is listed below.
 
-## Implemented in merged M1/M2 and verified M3 PR
+## Implemented in merged M1–M3
 
 - Monorepo workspace with locked pnpm and Python dependencies plus shared contracts, database, and accessible UI packages.
 - Local PostgreSQL Compose service and merged Prisma migrations for identity, workspace membership, customers, tickets, messages, internal notes, assignment, tags, and activity history.
@@ -59,12 +59,19 @@ The service exposes a public liveness endpoint and private bearer-token-protecte
 - Workspace shell that only displays an organization after the signed-in user’s membership is confirmed.
 - Fictional local owner/agent seed accounts and workspace; bearer-token-protected FastAPI intelligence endpoints and a public liveness endpoint.
 - Merged ticket queue, create/detail views, customer-visible replies, distinct internal notes, role-gated assignment, tags, validated status transitions, SLA states, activity timeline, and bounded filtering/pagination.
-- M3 in PR #4: bounded plain-text source ingestion (PDF/upload intentionally excluded), line-aware lexical search with source excerpts and insufficient-evidence state, and a local synthetic-fixture classifier that may abstain. Suggestions remain separate from the human-selected queue until an auditable human accept/override.
-- M2 passed CI before merge. M3's complete CI suite passed in run `41320365392`, including Prisma generation/migrations, formatting/lint/typecheck, seed-twice, unit/integration tests, web build, Playwright browser journeys, and Python checks. The PR is still open and unmerged.
+- M3 merged in PR #4: bounded plain-text source ingestion (PDF/upload intentionally excluded), line-aware lexical search with source excerpts and insufficient-evidence state, and a local synthetic-fixture classifier that may abstain. Suggestions remain separate from the human-selected queue until an auditable human accept/override.
+- M2 passed CI before merge. M3's complete CI suite passed in run `41320612182`, including Prisma generation/migrations, formatting/lint/typecheck, seed-twice, unit/integration tests, web build, Playwright browser journeys, and Python checks; PR #4 merged at `8fa20f8`.
+
+## M4 in progress (not yet CI-verified)
+
+- Workspace dashboard aggregates active/status/priority/queue counts, active agent workload (capped at 500 assignments), past-target active tickets, and 7-day ticket, triage-review, and knowledge-search measures.
+- Assignment and `@email` mention notices are tenant-membership scoped, stored with minimal summaries, and displayed in a per-member inbox. Recognized member handles are replaced in customer-visible replies so teammate email addresses are not exposed there.
+- Owner/manager-only audit history and API, with tenant-scoped event queries; event metadata omits message and document bodies.
+- M4 migration adds notification and audit tables plus dashboard indexes. Loading/error/empty states, keyboard/mobile/reduced-motion styling, an illustrative social preview, and deployment planning are in progress; final CI and browser verification are pending.
 
 ## Not implemented or not yet verified
 
-M3 implementation passed the complete CI suite in run `41320365392` and is proposed in open PR #4. PDFs and file uploads, dashboard analytics, notification workflows, and a restricted audit UI remain future milestones. M2 ticket flows and the Playwright login-to-resolve journey passed CI before PR #3 merged into `main` at `150c7f4`. No real support data, external model, paid API, or remote image/font asset is used.
+M4 has not yet passed its complete CI suite or merged; its deployment guide and PR will be updated with verified results. M5 release-candidate work remains. PDFs and file uploads, email delivery, external models, and public deployment remain out of scope. M2 ticket flows and the Playwright login-to-resolve journey passed CI before PR #3 merged into `main` at `150c7f4`. No real support data, external model, paid API, or remote font/image asset is used.
 
 ## Verification
 
@@ -91,10 +98,10 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-Database integration tests require a migrated local PostgreSQL database. CI uses PostgreSQL and deterministic local fixtures; it does not call paid APIs or download ML models. In this sandbox, Prisma client generation could not download its schema engine from the blocked binary host, and Docker/PostgreSQL are unavailable, so web typecheck/build and database/browser tests could not be verified locally. The full PR CI suite passed in run `41320365392`; do not interpret the command list above as saying all checks passed in this sandbox.
+Database integration tests require a migrated local PostgreSQL database. CI uses PostgreSQL and deterministic local fixtures; it does not call paid APIs or download ML models. In this sandbox, M4's local `pnpm format:check`, `pnpm lint`, and 20 unit tests passed, and its migration parsed as 16 PostgreSQL statements. Prisma client generation could not download the schema engine from the blocked binary host, and Docker/PostgreSQL are unavailable, so M4's schema generation, web typecheck/build, database integration tests, and browser journeys await CI. M3's complete CI suite passed in run `41320612182`; the M4 PR checks are pending. Do not interpret the command list as saying every check passed locally.
 
 ## Security, limitations, and next milestone
 
 No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
 
-M1 and M2 are complete; M2 passed CI run `41312473904` before PR #3 merged into `main` at `150c7f4`. M3 remains in progress until the exact checks pass and a separate PR is proposed. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.
+M1–M3 are complete; M3 passed CI run `41320612182` before PR #4 merged into `main` at `8fa20f8`. M4 is in progress on its own branch and awaits PR CI. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md). Milestones are proposed as separate reviewable PRs; do not merge without explicit user instruction.

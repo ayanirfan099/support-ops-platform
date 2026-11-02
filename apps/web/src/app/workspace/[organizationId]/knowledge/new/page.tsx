@@ -7,6 +7,7 @@ import { db } from "@supportops/database";
 import { Brand } from "@/components/brand";
 import { KnowledgeCreateForm } from "@/components/knowledge-create-form";
 import { SignOutButton } from "@/components/sign-out-button";
+import { WorkspaceNav } from "@/components/workspace-nav";
 import { auth } from "@/lib/auth";
 import { requireWorkspaceMembership } from "@/lib/authorization";
 
@@ -40,24 +41,11 @@ export default async function NewKnowledgeDocumentPage({
     <div className="app-frame">
       <aside className="rail">
         <Brand />
-        <nav aria-label="Workspace navigation">
-          <p className="workspace-label">{organization.name}</p>
-          <Link className="nav-link" href={`/workspace/${organizationId}`}>
-            ◈ Overview
-          </Link>
-          <Link
-            className="nav-link"
-            href={`/workspace/${organizationId}/tickets`}
-          >
-            ▤ Tickets
-          </Link>
-          <Link
-            className="nav-link active"
-            href={`/workspace/${organizationId}/knowledge`}
-          >
-            ⌕ Knowledge
-          </Link>
-        </nav>
+        <WorkspaceNav
+          organizationId={organizationId}
+          role={membership.role}
+          active="knowledge"
+        />
         <div className="rail-foot">Plain-text source · {membership.role}</div>
       </aside>
       <div className="main-panel">

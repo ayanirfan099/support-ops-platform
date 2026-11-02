@@ -55,6 +55,11 @@ enum TriageReviewStatus {
   overridden
 }
 
+enum NotificationType {
+  assignment
+  mention
+}
+
 model User {
   id            String       @id
   name          String
@@ -73,6 +78,8 @@ model User {
   createdKnowledgeDocuments  KnowledgeDocument[]          @relation("KnowledgeDocumentCreator")
   knowledgeSearches          KnowledgeSearch[]             @relation("KnowledgeSearchActor")
   reviewedTriageSuggestions ClassificationSuggestion[]    @relation("TriageReviewer")
+  notificationsSent         Notification[]                 @relation("NotificationActor")
+  auditEvents               AuditEvent[]
 
   @@map("users")
 }
@@ -139,6 +146,8 @@ model Organization {
   knowledgeDocuments        KnowledgeDocument[]
   knowledgeSearches         KnowledgeSearch[]
   classificationSuggestions ClassificationSuggestion[]
+  notifications             Notification[]
+  auditEvents               AuditEvent[]
 
   @@map("organizations")
 }
@@ -152,6 +161,7 @@ model Membership {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   assignments    Assignment[]
+  notifications  Notification[]
 
   @@unique([userId, organizationId])
   @@unique([id, organizationId])
@@ -198,10 +208,12 @@ model Ticket {
   activities        TicketActivity[]
   knowledgeSearches KnowledgeSearch[]
   triageSuggestions ClassificationSuggestion[]
+  notifications      Notification[]
 
   @@unique([id, organizationId])
   @@index([organizationId, status, updatedAt])
   @@index([organizationId, priority, updatedAt])
+  @@index([organizationId, status, slaTargetAt])
   @@index([organizationId, createdAt])
   @@map("tickets")
 }
@@ -248,6 +260,7 @@ model Assignment {
 
   @@index([organizationId, ticketId, endedAt])
   @@index([organizationId, membershipId, endedAt])
+  @@index([organizationId, endedAt, assignedAt])
   @@map("assignments")
 }
 
@@ -346,6 +359,7 @@ model KnowledgeSearch {
 
   @@unique([id, organizationId])
   @@index([organizationId, ticketId, createdAt])
+  @@index([organizationId, createdAt])
   @@map("knowledge_searches")
 }
 
@@ -370,26 +384,64 @@ model KnowledgeCitation {
 }
 
 model ClassificationSuggestion {
-  id                String            @id @default(cuid())
+  id                String             @id @default(cuid())
   organizationId    String
   ticketId          String
   suggestedQueue    TicketQueue?
   scores            Json
   modelVersion      String
-  abstained         Boolean           @default(false)
+  abstained         Boolean            @default(false)
   abstentionReason  String?
   reviewStatus      TriageReviewStatus @default(pending)
   reviewedQueue     TicketQueue?
   reviewReason      String?
   reviewerUserId    String?
   reviewedAt        DateTime?
-  createdAt         DateTime          @default(now())
-  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  ticket            Ticket            @relation(fields: [ticketId, organizationId], references: [id, organizationId], onDelete: Cascade)
-  reviewer          User?             @relation("TriageReviewer", fields: [reviewerUserId], references: [id], onDelete: SetNull)
+  createdAt         DateTime           @default(now())
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ticket            Ticket             @relation(fields: [ticketId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  reviewer          User?              @relation("TriageReviewer", fields: [reviewerUserId], references: [id], onDelete: SetNull)
 
   @@unique([id, organizationId])
   @@index([organizationId, ticketId, createdAt])
   @@index([organizationId, reviewStatus, createdAt])
+  @@index([organizationId, reviewStatus, reviewedAt])
   @@map("classification_suggestions")
+}
+
+model Notification {
+  id                    String           @id @default(cuid())
+  organizationId        String
+  recipientMembershipId String
+  actorUserId           String?
+  ticketId              String
+  type                  NotificationType
+  summary               String
+  createdAt             DateTime         @default(now())
+  readAt                DateTime?
+  organization          Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recipient             Membership       @relation(fields: [recipientMembershipId, organizationId], references: [id, organizationId], onDelete: Cascade)
+  actor                 User?            @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  ticket                Ticket           @relation(fields: [ticketId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  @@index([organizationId, recipientMembershipId, readAt, createdAt])
+  @@map("notifications")
+}
+
+model AuditEvent {
+  id             String       @id @default(cuid())
+  organizationId String
+  actorUserId    String?
+  action         String
+  targetType     String
+  targetId       String
+  summary        String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor          User?        @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt, id])
+  @@index([organizationId, targetType, targetId])
+  @@map("audit_events")
 }
