@@ -24,7 +24,7 @@ beforeAll(async () => {
   const [owner, agent] = await Promise.all([
     db.membership.create({
       data: {
-        organizationId,
+        organization: { connect: { id: organizationId } },
         role: "owner",
         user: {
           create: {
@@ -37,7 +37,7 @@ beforeAll(async () => {
     }),
     db.membership.create({
       data: {
-        organizationId,
+        organization: { connect: { id: organizationId } },
         role: "agent",
         user: {
           create: {
