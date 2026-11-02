@@ -20,7 +20,7 @@ All notable SupportOps changes are recorded here. No versioned release has been 
 
 ### Verification status
 
-M5 verification remains in progress until the release-candidate CI workflow completes successfully. See [the release proposal](docs/RELEASE_PROPOSAL.md) for the exact verification record and known local-environment limits. This section is not a release announcement.
+M5 verification passed CI run `41413820169`; the pull request remains open and unmerged. See [the release proposal](docs/RELEASE_PROPOSAL.md) for the verification record and known local-environment limits. This section is not a release announcement.
 
 ## Proposed v1.0.0 candidate scope (not released)
 

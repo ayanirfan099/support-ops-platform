@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml)
 
-A multi-tenant support workspace for ticket operations, source-backed knowledge, and human-reviewed routing. M1–M4 are merged, including ticket/customer records, separate internal notes and public replies, knowledge citations, advisory triage, live workspace metrics, tenant-scoped notifications, and a role-restricted audit history. M5 is preparing release-candidate verification; no version has been published.
+A multi-tenant support workspace for ticket operations, source-backed knowledge, and human-reviewed routing. M1–M4 are merged, including ticket/customer records, separate internal notes and public replies, knowledge citations, advisory triage, live workspace metrics, tenant-scoped notifications, and a role-restricted audit history. M5 release-candidate verification passed CI; PR #6 is open for review. No version has been published.
 
-> **Status:** M4 PR #5 merged at `c5db31021d99ac4101cccd5361589757c1c293a6` after complete CI run `41409133762` passed. M5 release-candidate work is underway. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data. Publishing `v1.0.0` requires explicit approval.
+> **Status:** M4 PR #5 merged at `c5db31021d99ac4101cccd5361589757c1c293a6` after complete CI run `41409133762` passed. M5 CI run `41413820169` passed all jobs; PR #6 is open and unmerged. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data. Publishing `v1.0.0` requires explicit approval.
 
 The CI badge shows workflow status; it does not imply a release exists or that every M5 verification has passed. A branded social preview graphic is included; its dashboard values are labeled as illustrative sample values, not actual usage.
 
@@ -84,7 +84,7 @@ The service exposes a public liveness endpoint and private bearer-token-protecte
 
 ## Not implemented or not yet verified
 
-M4's complete CI suite passed in run `41409133762`; PR #5 is merged. M5 adds dependency/secret scanning and containerized smoke verification; the release proposal remains subject to its final CI results and review. PDFs and file uploads, email delivery, external models, and public deployment remain out of scope. No real support data, external model, paid API, or remote font/image asset is used.
+M4's complete CI suite passed in run `41409133762`; PR #5 is merged. M5's full CI run `41413820169` passed the quality, dependency/secret scan, and container build/smoke jobs; PR #6 is open for review and remains unmerged. PDFs and file uploads, email delivery, external models, and public deployment remain out of scope. No real support data, external model, paid API, or remote font/image asset is used.
 
 ## Verification
 
@@ -117,10 +117,10 @@ pnpm test:e2e
 # It also builds and starts the opt-in containerized Compose profile, then smoke-tests /sign-in.
 ```
 
-Database integration tests require a migrated PostgreSQL database. CI uses fictional local fixtures and does not call paid APIs or download ML models. M5 local verification passed frozen pnpm installation, Prettier, ESLint, 20 JavaScript unit tests, a zero-finding JavaScript audit, 12 Python tests, Ruff format/lint checks, and a Python dependency audit with no known vulnerabilities. In this sandbox, Docker and PostgreSQL are unavailable, Prisma client generation cannot download the schema engine, and GitHub release assets are blocked; therefore local Prisma generation/migrations/seed, full web typecheck/build, database integration/browser tests, Docker smoke tests, and Gitleaks execution are not verified here. M4's full CI suite passed in run `41409133762`. M5 CI results are pending; see the [release proposal](docs/RELEASE_PROPOSAL.md). Do not interpret the command list as saying every check passed locally.
+Database integration tests require a migrated PostgreSQL database. CI uses fictional local fixtures and does not call paid APIs or download ML models. M5 local verification passed frozen pnpm installation, Prettier, ESLint, 20 JavaScript unit tests, a zero-finding JavaScript audit, 12 Python tests, Ruff format/lint checks, and a Python dependency audit with no known vulnerabilities. M5 CI run `41413820169` passed the complete quality suite (including migrations/seed, integration and browser tests), both dependency audits, full-history secret scan, Docker image builds, and container smoke test. In this sandbox, Docker and PostgreSQL are unavailable and Prisma client generation cannot download the schema engine; therefore local migrations/seed, full web typecheck/build, database integration/browser tests, Docker smoke tests, and Gitleaks execution were not verified here. See the [release proposal](docs/RELEASE_PROPOSAL.md) for the full record. Do not interpret the command list as saying every check passed locally.
 
 ## Security, limitations, and next milestone
 
 No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
 
-M1–M4 are complete; M4 merged in PR #5 at `c5db31021d99ac4101cccd5361589757c1c293a6` after CI run `41409133762` passed. M5 release-candidate verification and review are in progress. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md), [changelog](CHANGELOG.md), and [draft release proposal](docs/RELEASE_PROPOSAL.md). No tag or release has been created; publishing `v1.0.0` requires explicit approval. Milestones remain separate reviewable PRs and must not be merged without explicit user instruction.
+M1–M4 are complete; M4 merged in PR #5 at `c5db31021d99ac4101cccd5361589757c1c293a6` after CI run `41409133762` passed. M5 verification passed in CI run `41413820169`; PR #6 is open and unmerged. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md), [changelog](CHANGELOG.md), and [draft release proposal](docs/RELEASE_PROPOSAL.md). No tag or release has been created; publishing `v1.0.0` requires explicit approval. Milestones remain separate reviewable PRs and must not be merged without explicit user instruction.
