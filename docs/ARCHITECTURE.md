@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M1–M3 are merged in PRs #2–#4; M3 merge commit `8fa20f8` passed complete CI run `41320612182`. M4 analytics, notifications, audit history, and polish are in progress on the milestone branch; CI and merge status are recorded in the PR when verified. The diagram is the target system, not a claim that every component is production-ready or deployed.
+**Status:** M1–M3 are merged in PRs #2–#4; M3 merge commit `8fa20f8` passed complete CI run `41320612182`. M4 analytics, notifications, audit history, and polish are proposed in open PR #5; full CI run `41408685016` passed. The PR is not yet merged. The diagram is the target system, not a claim that every component is production-ready or deployed.
 
 ## System context
 

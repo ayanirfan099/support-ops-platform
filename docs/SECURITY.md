@@ -1,6 +1,6 @@
 # Security and privacy threat model
 
-**Status:** Design and implementation notes (M0–M4), 2026-11-02. M1–M3 are merged; M3 passed full CI run `41320612182`. M4 is in progress and adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads; verify its CI and PR state before relying on the implementation notes. This document is not a security audit, certification, or production-readiness claim.
+**Status:** Design and implementation notes (M0–M4), 2026-11-02. M1–M3 are merged; M3 passed full CI run `41320612182`. M4 is proposed in open PR #5; CI run `41408685016` passed. It adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads. PR #5 is not yet merged. This document is not a security audit, certification, or production-readiness claim.
 
 ## Scope and assumptions
 

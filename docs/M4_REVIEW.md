@@ -1,6 +1,6 @@
 # M4 accessibility and performance review notes
 
-**Review scope:** Static implementation review for the M4 dashboard, notification inbox, and restricted audit UI. This is not an accessibility audit, browser benchmark, load test, or production-readiness assessment. Playwright/CI verification is still pending.
+**Review scope:** Static implementation review for the M4 dashboard, notification inbox, and restricted audit UI. Complete CI run `41408685016` passed, including typecheck, database integration tests, production build, and Playwright journeys. This is not an independent accessibility audit, browser benchmark, load test, or production-readiness assessment.
 
 ## Accessibility review
 
@@ -17,6 +17,6 @@
 - Notification and audit pages request 51 records to render 50 and expose a next cursor. Cursor anchors are validated inside the same tenant/recipient scope. Notification summaries do not include ticket body text.
 - Audit queries return a minimal actor name and event summary/target, not event metadata, message bodies, or document content.
 
-## Verification still required
+## Limits and follow-up
 
-Run the M4 Prisma migration, database integration tests, production build, and Playwright suite in CI. No Lighthouse/axe scan, representative-corpus query plan, load test, or measured performance benchmark is claimed. Any future capacity limit should be based on a representative synthetic workload and recorded query-plan review.
+The M4 Prisma migration, database integration tests, production build, and Playwright journeys passed in CI run `41408685016`. No Lighthouse/axe scan, representative-corpus query plan, load test, or measured performance benchmark is claimed. Any future capacity limit should be based on a representative synthetic workload and recorded query-plan review.
