@@ -4,7 +4,7 @@
 
 ## Current local run
 
-Follow the repository [README quick start](../README.md#local-quick-start). It uses Docker Compose for PostgreSQL, the Next.js web app, and the internal FastAPI intelligence service. Keep `.env` untracked, replace every placeholder locally, and use only fictional data. The example passwords and database credentials are disposable local seed values—not secrets suitable for a shared environment.
+Follow the repository [README quick start](../README.md#local-quick-start) for the hybrid developer setup (Compose PostgreSQL plus locally run Next.js and FastAPI processes), or its [containerized local stack](../README.md#run-the-full-local-stack-in-containers) profile for web, intelligence, migration/seed, and PostgreSQL containers. The container profile binds web/database ports to loopback and is for local verification only. Keep `.env` untracked, replace every placeholder locally, and use only fictional data. The example passwords and database credentials are disposable local seed values—not secrets suitable for a shared environment.
 
 ## Deployment planning checklist
 
