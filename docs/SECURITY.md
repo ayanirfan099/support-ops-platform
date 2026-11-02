@@ -1,6 +1,6 @@
 # Security and privacy threat model
 
-**Status:** Design and implementation notes (M0–M5), 2026-11-02. M1–M4 are merged; M4 passed full CI run `41409133762` and adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads. M5's dependency audits, full-history secret scan, and containerized smoke path passed in CI run `41414560060`; PR #6 is open and unmerged. See the README and release proposal for the verification record. This document is not a security audit, certification, or production-readiness claim.
+**Status:** Design and implementation notes (M0–M5), 2026-11-02. M1–M5 are merged; M4 passed full CI run `41409133762` and adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads. M5's dependency audits, full-history secret scan, and containerized smoke path passed main-branch CI run `41416709489`. See the README and release proposal for the verification record. This document is not a security audit, certification, or production-readiness claim.
 
 ## Scope and assumptions
 

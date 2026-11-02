@@ -1,6 +1,6 @@
 # SupportOps architecture
 
-**Status:** M1–M4 are merged in PRs #2–#5; M4 merge commit `c5db31021d99ac4101cccd5361589757c1c293a6` passed full CI run `41409133762`. M5's containerized build/smoke verification and security scans passed in CI run `41414560060`; PR #6 is open and unmerged. The diagram is the system design, not a claim that every component is production-ready or deployed.
+**Status:** M1–M5 are merged in PRs #2–#6; M5 merge commit `4c8d15c5c33b82e9eef7f1e8bc6bbacb287b8d34` passed main-branch CI run `41416709489`, including container smoke and security scans. The diagram is the system design, not a claim that every component is production-ready or deployed.
 
 ## System context
 
