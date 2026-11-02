@@ -1,6 +1,6 @@
 # Security and privacy threat model
 
-**Status:** Design and implementation notes (M0–M4), 2026-11-02. M1–M3 are merged; M3 passed full CI run `41320612182`. M4 is proposed in open PR #5; CI run `41408685016` passed. It adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads. PR #5 is not yet merged. This document is not a security audit, certification, or production-readiness claim.
+**Status:** Design and implementation notes (M0–M5), 2026-11-02. M1–M4 are merged; M4 passed full CI run `41409133762` and adds tenant-scoped assignment/mention notifications and owner/manager-only audit reads. M5 adds automated dependency and secret scans plus a containerized smoke path; refer to the README and release proposal for current results. This document is not a security audit, certification, or production-readiness claim.
 
 ## Scope and assumptions
 
@@ -57,6 +57,6 @@ Threat actors include unauthenticated attackers, authenticated low-privilege use
 
 ## Secure development and incident boundaries
 
-Use local/test configuration by default. `.env.example` values must be safe placeholders and unusable as production credentials. Do not introduce real customer or credential material in fixtures, screenshots, issue text, or logs. If a secret is committed, rotate/revoke it first; removing it from the latest tree alone is insufficient. No production-readiness or compliance claim is permitted without a separate verified review.
+Use local/test configuration by default. `.env.example` values must be safe placeholders and unusable as production credentials. CI runs the default Gitleaks rules over full Git history; `.gitleaks.toml` exempts only exact known fictional seed/test/build-placeholder values at their specific fixture paths, never a general token pattern or real credential. Do not introduce real customer or credential material in fixtures, screenshots, issue text, or logs. If a secret is committed, rotate/revoke it first; removing it from the latest tree alone is insufficient. No production-readiness or compliance claim is permitted without a separate verified review.
 
 Before any public deployment, conduct a deployment-specific review covering TLS and trusted proxy settings, secure cookie configuration, secret store, database access/network policy, backups/restore, monitoring and redaction, dependency patching, rate limits, retention/deletion, privacy notice, incident handling, and upload isolation. These are known production gaps until implemented and verified.

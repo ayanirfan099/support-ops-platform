@@ -1,6 +1,6 @@
 # M4 accessibility and performance review notes
 
-**Review scope:** Static implementation review for the M4 dashboard, notification inbox, and restricted audit UI. Complete CI run `41408685016` passed, including typecheck, database integration tests, production build, and Playwright journeys. This is not an independent accessibility audit, browser benchmark, load test, or production-readiness assessment.
+**Review scope:** Static implementation review for the M4 dashboard, notification inbox, and restricted audit UI. Complete CI run `41409133762` passed, including typecheck, database integration tests, production build, and Playwright journeys. This is not an independent accessibility audit, browser benchmark, load test, or production-readiness assessment.
 
 ## Accessibility review
 
@@ -19,4 +19,4 @@
 
 ## Limits and follow-up
 
-The M4 Prisma migration, database integration tests, production build, and Playwright journeys passed in CI run `41408685016`. No Lighthouse/axe scan, representative-corpus query plan, load test, or measured performance benchmark is claimed. Any future capacity limit should be based on a representative synthetic workload and recorded query-plan review.
+The M4 Prisma migration, database integration tests, production build, and Playwright journeys passed in CI run `41409133762`. No Lighthouse/axe scan, representative-corpus query plan, load test, or measured performance benchmark is claimed. Any future capacity limit should be based on a representative synthetic workload and recorded query-plan review.

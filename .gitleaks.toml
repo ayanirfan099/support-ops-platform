@@ -1,0 +1,25 @@
+title = "SupportOps secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Exact fictional local/CI credentials and build placeholders; no reusable credentials are exempted."
+regexTarget = "secret"
+regexes = [
+  '''^ci-only-secret-not-for-use-outside-automated-tests-0001$''',
+  '''^ci-only-intelligence-token-not-for-use-outside-automated-tests$''',
+  '''^test-only-intelligence-token-that-is-long-enough$''',
+  '''^SupportOps-Demo-2026!$''',
+  '''^SupportOps-Agent-2026!$''',
+  '''^REPLACE_WITH_A_RANDOM_SECRET_AT_LEAST_32_CHARACTERS_LONG$''',
+  '''^REPLACE_WITH_A_RANDOM_TOKEN_AT_LEAST_32_CHARACTERS_LONG$''',
+  '''^build-only-placeholder-not-for-runtime-use-000000000000$''',
+  '''^supportops-local-only$''',
+  '''^supportops-ci-only$''',
+  '''^build-only$''',
+  '''^supportops:(?:supportops-local-only|supportops-ci-only|build-only)$''',
+]
+paths = [
+  '''(?i)(?:^|/)(?:\.github/workflows/ci\.yml|playwright\.config\.ts|services/intelligence/tests/test_intelligence\.py|apps/web/scripts/seed\.ts|infra/docker/compose\.yml|apps/web/Dockerfile|\.env\.example|README\.md)$''',
+]
