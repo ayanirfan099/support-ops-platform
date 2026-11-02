@@ -40,7 +40,7 @@ SupportOps is a multi-tenant support workspace with ticket operations, source-ba
 
 ### CI checks
 
-M5 workflow result: **passed** — GitHub Actions run `41413820169` completed successfully for PR #6 head `ffcbedbd218c2a7d17eadfff8996c2035d9d3f9e`. All three jobs passed: `quality` (Prisma generation/migrations, seed-twice, formatting/lint/typecheck, unit/integration tests, web build, Playwright, Python formatting/lint/tests); `Dependency and secret scans` (JavaScript audit, Python audit of locked runtime/development extras, full-history Gitleaks scan); and `Container build and smoke test` (Compose validation, web/intelligence image builds, container migrations/seed, health checks, and HTTP smoke test). PR #6 remains open and unmerged; this CI result is not a release approval.
+M5 workflow result: **passed** — GitHub Actions run `41414560060` completed successfully for PR #6 head `6b0912bf7e626ff521d8a28374dc1df99a239578`. All three jobs passed: `quality` (Prisma generation/migrations, seed-twice, formatting/lint/typecheck, unit/integration tests, web build, Playwright, Python formatting/lint/tests); `Dependency and secret scans` (JavaScript audit, Python audit of locked runtime/development extras, full-history Gitleaks scan); and `Container build and smoke test` (Compose validation, web/intelligence image builds, container migrations/seed, health checks, and HTTP smoke test). PR #6 remains open and unmerged; this CI result is not a release approval.
 
 ### Known limitations
 
