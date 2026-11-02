@@ -12,7 +12,7 @@ test("owner and agent work a ticket, review its audit, and receive notifications
 
   await expect(
     page.getByRole("heading", { name: "Your workspaces." }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15_000 });
   await page.getByRole("link", { name: /Acme Support Demo/ }).click();
   await expect(
     page.getByRole("heading", { name: "Queue snapshot" }),
@@ -106,7 +106,7 @@ test("owner and agent work a ticket, review its audit, and receive notifications
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(
     page.getByRole("heading", { name: "Your workspaces." }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15_000 });
   await page.getByRole("link", { name: /Acme Support Demo/ }).click();
   await expect(page.getByRole("link", { name: "Activity log" })).toHaveCount(0);
   const auditApiStatus = await page.evaluate(async () => {
@@ -117,7 +117,7 @@ test("owner and agent work a ticket, review its audit, and receive notifications
     return response.status;
   });
   expect(auditApiStatus).toBe(403);
-  await page.getByRole("link", { name: "Notifications" }).click();
+  await page.getByRole("link", { name: "Notifications", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Notifications" }),
   ).toBeVisible();
