@@ -3,6 +3,9 @@ import { expect, test } from "@playwright/test";
 test("owner and agent work a ticket, review its audit, and receive notifications", async ({
   page,
 }) => {
+  const suffix = Date.now().toString();
+  const subject = `E2E: cannot access my account ${suffix}`;
+
   await page.goto("/sign-in");
   await page
     .getByLabel("Email address")
@@ -23,17 +26,17 @@ test("owner and agent work a ticket, review its audit, and receive notifications
   ).toBeVisible();
 
   await page.getByRole("link", { name: "Create ticket" }).click();
-  await page.getByLabel("Subject").fill("E2E: cannot access my account");
+  await page.getByLabel("Subject").fill(subject);
   await page
     .getByLabel("Description")
     .fill("I am locked out after updating my password.");
   await page.getByLabel("Customer name").fill("Taylor Example");
-  await page.getByLabel("Customer email").fill("taylor@example.invalid");
+  await page
+    .getByLabel("Customer email")
+    .fill(`taylor-e2e-${suffix}@example.invalid`);
   await page.getByRole("button", { name: "Create ticket" }).click();
 
-  await expect(
-    page.getByRole("heading", { name: "E2E: cannot access my account" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: subject })).toBeVisible();
   await expect(
     page.getByText("I am locked out after updating my password.").first(),
   ).toBeVisible();
@@ -108,6 +111,9 @@ test("owner and agent work a ticket, review its audit, and receive notifications
     page.getByRole("heading", { name: "Your workspaces." }),
   ).toBeVisible({ timeout: 15_000 });
   await page.getByRole("link", { name: /Acme Support Demo/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Queue snapshot" }),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "Activity log" })).toHaveCount(0);
   const auditApiStatus = await page.evaluate(async () => {
     const organizationId = window.location.pathname.split("/")[2];
@@ -121,10 +127,21 @@ test("owner and agent work a ticket, review its audit, and receive notifications
   await expect(
     page.getByRole("heading", { name: "Notifications" }),
   ).toBeVisible();
-  await expect(page.getByText("A ticket was assigned to you.")).toBeVisible();
+  const assignmentNotification = page
+    .getByRole("listitem")
+    .filter({ hasText: subject })
+    .filter({ hasText: "A ticket was assigned to you." });
+  const mentionNotification = page
+    .getByRole("listitem")
+    .filter({ hasText: subject })
+    .filter({ hasText: "You were mentioned in a customer-visible reply." });
+
+  await expect(assignmentNotification).toHaveCount(1);
+  await expect(mentionNotification).toHaveCount(1);
+  await assignmentNotification
+    .getByRole("button", { name: "Mark read" })
+    .click();
   await expect(
-    page.getByText("You were mentioned in a customer-visible reply."),
+    assignmentNotification.getByText("Read", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Mark read" }).first().click();
-  await expect(page.getByText("Read").first()).toBeVisible();
 });
