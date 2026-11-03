@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const metadataBase = new URL(
+  process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+);
+
 export const metadata: Metadata = {
+  metadataBase,
   title: "SupportOps — Support, with evidence",
   description:
     "A support operations workspace for ticket workflows, source-cited knowledge, and human-reviewed routing.",

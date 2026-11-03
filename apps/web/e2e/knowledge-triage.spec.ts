@@ -53,8 +53,10 @@ test("agent searches line-cited knowledge and reviews an advisory triage suggest
     .getByLabel("Search knowledge")
     .fill("duplicate invoice charge refund");
   await page.getByRole("button", { name: "Search" }).click();
-  const citation = page.locator(".citation-card");
-  await expect(citation).toContainText(guideTitle);
+  const citation = page
+    .locator(".citation-card")
+    .filter({ hasText: guideTitle });
+  await expect(citation).toHaveCount(1);
   await expect(citation).toContainText("Lines 2–3");
   await expect(citation).toContainText(
     "Refunds are reviewed by the billing team.",
@@ -72,7 +74,11 @@ test("agent searches line-cited knowledge and reviews an advisory triage suggest
   await expect(page.locator(".ticket-facts")).toContainText("billing");
 
   await page.getByRole("link", { name: "Knowledge" }).click();
+  const createdDocument = page
+    .locator(".knowledge-document-card")
+    .filter({ hasText: guideTitle });
+  await expect(createdDocument).toHaveCount(1);
   page.once("dialog", (dialog) => dialog.accept());
-  await page.getByRole("button", { name: "Delete source" }).click();
+  await createdDocument.getByRole("button", { name: "Delete source" }).click();
   await expect(page.getByText(guideTitle)).toHaveCount(0);
 });

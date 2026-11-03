@@ -2,125 +2,126 @@
 
 [![CI](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/ayanirfan099/support-ops-platform/actions/workflows/ci.yml)
 
-A multi-tenant support workspace for ticket operations, source-backed knowledge, and human-reviewed routing. M1–M5 are complete and merged, including ticket/customer records, source-cited knowledge, human-reviewed triage, workspace metrics, tenant-scoped notifications, audit history, and release-candidate verification. The user authorized a `v1.0.0` source tag; no GitHub Release or deployment is being created.
+A multi-tenant support operations platform for ticket workflows, source-cited knowledge retrieval, human-reviewed ML triage, notifications, audit history, and operational analytics.
 
-> **Status:** M5 PR #6 merged at `4c8d15c5c33b82e9eef7f1e8bc6bbacb287b8d34`. Main-branch CI run `41416709489` passed quality, security, and container verification. The approved `v1.0.0` tag is a source snapshot only. No production deployment, real users/customers, benchmark performance, or production-readiness claim is made. Use only fictional data.
+![SupportOps workspace dashboard populated with fictional seeded data](docs/screenshots/dashboard.png)
 
-The CI badge shows workflow status; it does not imply a GitHub Release or deployment. A branded social preview graphic is included; its dashboard values are labeled as illustrative sample values, not actual usage.
+> **Portfolio status:** implemented and verified with fictional local/CI data. SupportOps is not publicly deployed, production-approved, or connected to real customer data.
+
+## Why this project matters
+
+Support teams need faster routing and better evidence without giving an automated model authority over customer-impacting decisions. SupportOps keeps retrieval and triage advisory: agents see exact source excerpts, an explicit insufficient-evidence state, and inspectable queue scores before accepting or overriding a suggestion.
+
+Tenant isolation is enforced server-side rather than inferred from navigation. Every workspace operation resolves membership and role before reading or changing tenant-owned data; organization and resource identifiers are never treated as authorization.
 
 ## Architecture at a glance
 
-Monorepo: Next.js App Router/React/TypeScript web app → Prisma-backed PostgreSQL for identity and workspace data, with a private FastAPI/Pydantic service for bounded local retrieval and triage. Better Auth owns email/password authentication and database-backed sessions. The web app resolves each workspace membership server-side before returning workspace details. An organization ID alone never grants access.
+| Component                     | Responsibility                                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Next.js and React             | Authenticated workspace UI, same-origin APIs, authorization and product workflows                    |
+| PostgreSQL and Prisma         | Identity, memberships, tickets, messages, notes, knowledge, reviews, notifications and audit history |
+| FastAPI and Pydantic          | Private bounded text chunking, lexical retrieval and deterministic local triage                      |
+| Better Auth                   | Email/password authentication and database-backed sessions                                           |
+| Playwright, Vitest and pytest | Browser, integration, unit and intelligence-service verification                                     |
 
-See [architecture and data flow](docs/ARCHITECTURE.md), [product requirements](docs/PRODUCT_REQUIREMENTS.md), [threat model](docs/SECURITY.md), [deployment guidance and known production gaps](docs/DEPLOYMENT.md), [M4 review notes](docs/M4_REVIEW.md), the [changelog](CHANGELOG.md), the [release proposal](docs/RELEASE_PROPOSAL.md), and [ADR 0001](docs/DECISIONS/0001-architecture.md).
+Request flow:
+
+    Browser → Next.js UI/API → membership and role authorization → PostgreSQL
+                           ↘ private token-authenticated FastAPI service
+
+The browser never connects directly to PostgreSQL or the intelligence service. Essential ticket operations remain available when intelligence features are unavailable. See [Architecture](docs/ARCHITECTURE.md) and the [Security threat model](docs/SECURITY.md).
+
+## Product capabilities
+
+- Multi-tenant workspaces with owner, manager and agent roles
+- Ticket queues, customers, assignment, priority, tags and validated status transitions
+- Separate customer-visible replies and private internal notes
+- Bounded plain-text knowledge ingestion with exact line citations
+- Explicit insufficient-evidence behavior and lexical-score warnings
+- Local triage suggestions with abstention and mandatory human accept/override
+- Tenant-scoped notifications and owner/manager-only audit history
+- Queue, SLA, workload and seven-day operational metrics
+- Reproducible migrations, fictional seed data, CI and container smoke verification
+
+## Product tour
+
+### Source-backed knowledge search
+
+Search results preserve the source title, exact line range and excerpt. Ranking scores order evidence; they are not presented as probabilities or proof.
+
+![SupportOps ticket evidence search with line-cited fictional source](docs/screenshots/knowledge-search.png)
+
+### Human-reviewed triage
+
+The classifier cannot route a ticket automatically. Its suggestion remains pending until an agent records a human-selected queue and optional reason.
+
+![SupportOps ticket detail with a human-reviewed billing triage decision](docs/screenshots/ticket-triage.png)
+
+All screenshots were captured by Playwright from a freshly migrated database containing only fictional seed and portfolio fixture data. Run the opt-in capture journey with `CAPTURE_PORTFOLIO_SCREENSHOTS=1`.
 
 ## Local quick start
 
-Requirements: Node.js 22+, Corepack/pnpm 10.28.2, Python 3.11+, `uv`, and Docker Compose.
+Requirements: Node.js 22+, Corepack/pnpm 10.28.2, Python 3.11+, uv 0.10.11, and PostgreSQL 16+ or Docker Compose.
 
-```sh
-cp .env.example .env
-# Replace BETTER_AUTH_SECRET and INTELLIGENCE_SERVICE_TOKEN with unique random values of at least 32 characters.
-corepack enable pnpm
-pnpm install --frozen-lockfile
-docker compose -f infra/docker/compose.yml up -d postgres
-pnpm db:generate
-pnpm db:migrate
-pnpm db:seed
-pnpm dev
-```
+    cp .env.example .env
+    # Replace BETTER_AUTH_SECRET and INTELLIGENCE_SERVICE_TOKEN
+    # with unique random values of at least 32 characters.
+    corepack enable pnpm
+    pnpm install --frozen-lockfile
+    pnpm db:generate
+    pnpm db:migrate
+    pnpm db:seed
 
-Open `http://localhost:3000`. The fictional local seed accounts are `demo@supportops.example.invalid` / `SupportOps-Demo-2026!` (owner) and `agent@supportops.example.invalid` / `SupportOps-Agent-2026!` (agent), unless overridden in `.env`. The seed creates an `Acme Support Demo` workspace. These credentials are for local fictional data only; change them if you adapt the seed and do not reuse them outside a disposable local environment. Registration currently has no email verification or delivery service and is **not suitable for public production use**.
+Start the intelligence service in one terminal:
 
-The web app calls the internal intelligence service for document chunking, lexical search, and local triage. Replace the intelligence service-token placeholder in `.env` with a locally generated random token of at least 32 characters; do not commit `.env`. Start the service in a separate terminal:
+    cd services/intelligence
+    uv sync --locked --all-extras
+    uv run --locked uvicorn supportops_intelligence.main:app       --env-file ../../.env --host 127.0.0.1 --port 8001
 
-```sh
-cd services/intelligence
-uv sync --locked --all-extras
-uv run --locked uvicorn supportops_intelligence.main:app --env-file ../../.env --host 0.0.0.0 --port 8001
-```
+Start the web application from the repository root:
 
-Run its local tests/quality checks from `services/intelligence`:
+    pnpm dev
 
-```sh
-uv run --locked pytest -q
-uv run --locked ruff check .
-uv run --locked ruff format --check .
-```
+Open `http://localhost:3000`. The seed-account identifiers and disposable local passwords are defined in `.env.example`. They are public fixture values for an isolated, resettable local environment—never shared-environment credentials.
 
-### Run the full local stack in containers
-
-The optional `containerized` Compose profile builds the web and intelligence images in addition to PostgreSQL. It binds web and database ports to loopback only. Set both secrets in `.env` first, then:
-
-```sh
-docker compose -f infra/docker/compose.yml --profile containerized up --build -d postgres intelligence
-docker compose -f infra/docker/compose.yml --profile containerized run --rm migrate
-docker compose -f infra/docker/compose.yml --profile containerized run --rm seed
-docker compose -f infra/docker/compose.yml --profile containerized up --build -d web
-```
-
-Open `http://localhost:3000`. The app and intelligence service remain on Compose's private network; only the local web and database ports are published. This profile uses local/demo defaults and is not a production deployment recipe. Stop containers with `docker compose -f infra/docker/compose.yml --profile containerized down` (omit `--volumes` to retain the local database).
-
-The service exposes a public liveness endpoint and private bearer-token-protected chunking, lexical-search, and classifier routes. The classifier and ranker are deterministic synthetic/local baselines, not benchmarked performance claims; the M3 verification status is listed below.
-
-## Implemented in merged M1–M4
-
-- Monorepo workspace with locked pnpm and Python dependencies plus shared contracts, database, and accessible UI packages.
-- Local PostgreSQL Compose service and merged Prisma migrations for identity, workspace membership, customers, tickets, messages, internal notes, assignment, tags, and activity history.
-- Better Auth email/password endpoints, database-backed sessions, HTTP-only/Lax cookies, configured request rate limiting, and sign-out.
-- Organization creation that atomically makes the creator an owner; shared membership/role authorization helpers.
-- Workspace shell that only displays an organization after the signed-in user’s membership is confirmed.
-- Fictional local owner/agent seed accounts and workspace; bearer-token-protected FastAPI intelligence endpoints and a public liveness endpoint.
-- Merged ticket queue, create/detail views, customer-visible replies, distinct internal notes, role-gated assignment, tags, validated status transitions, SLA states, activity timeline, and bounded filtering/pagination.
-- M3 merged in PR #4: bounded plain-text source ingestion (PDF/upload intentionally excluded), line-aware lexical search with source excerpts and insufficient-evidence state, and a local synthetic-fixture classifier that may abstain. Suggestions remain separate from the human-selected queue until an auditable human accept/override.
-- M2 passed CI before merge. M3's complete CI suite passed in run `41320612182`, including Prisma generation/migrations, formatting/lint/typecheck, seed-twice, unit/integration tests, web build, Playwright browser journeys, and Python checks; PR #4 merged at `8fa20f8`.
-
-## M4 implemented in merged PR #5
-
-- Workspace dashboard aggregates active/status/priority/queue counts, active agent workload (capped at 500 assignments), past-target active tickets, and 7-day ticket, triage-review, and knowledge-search measures.
-- Assignment and `@email` mention notices are tenant-membership scoped, stored with minimal summaries, and displayed in a per-member inbox. Recognized member handles are replaced in customer-visible replies so teammate email addresses are not exposed there.
-- Owner/manager-only audit history and API, with tenant-scoped event queries; event metadata omits message and document bodies.
-- M4 migration adds notification and audit tables plus dashboard indexes. Loading/error/empty states, keyboard/mobile/reduced-motion styling, an illustrative social preview, and deployment planning are included; full M4 CI run `41409133762` passed.
-
-## Not implemented or not yet verified
-
-M4's complete CI suite passed in run `41409133762`; PR #5 is merged. M5 merged in PR #6, and main-branch CI run `41416709489` passed the quality, dependency/secret scan, and container build/smoke jobs. PDFs and file uploads, email delivery, external models, and public deployment remain out of scope. No real support data, external model, paid API, or remote font/image asset is used.
+For the optional containerized local stack, follow [Deployment guidance](docs/DEPLOYMENT.md). The Compose profile is a local verification topology, not a production deployment manifest.
 
 ## Verification
 
-Run from the repository root:
+| Area              | Coverage                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| TypeScript        | Prettier, ESLint, strict typecheck and production Next.js build                        |
+| Unit tests        | Contracts, knowledge schemas, intelligence client behavior and notification visibility |
+| Integration tests | Authentication sessions, tenant membership, tickets, knowledge/triage and analytics    |
+| Browser tests     | Ticket resolution, authorization, notifications, citations and human-reviewed triage   |
+| Python            | Ruff formatting/lint and pytest for health, retrieval, bounds, auth and triage         |
+| Security          | JavaScript/Python dependency audits and full-history Gitleaks scan                     |
+| Containers        | Compose validation, image builds, migrations, seed, health checks and web smoke test   |
 
-```sh
-pnpm install --frozen-lockfile
-pnpm audit --audit-level low
-cd services/intelligence
-uv sync --locked --all-extras
-uv run --locked ruff format --check .
-uv run --locked ruff check .
-uv run --locked pytest -q
-uv export --locked --all-extras --no-emit-project --format requirements-txt --output-file /tmp/supportops-requirements.txt
-uvx --from pip-audit==2.10.1 pip-audit --requirement /tmp/supportops-requirements.txt
-cd ../..
-pnpm db:generate
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm --filter @supportops/database prisma:deploy
-pnpm db:seed
-pnpm db:seed
-pnpm test
-pnpm test:integration
-pnpm build
-pnpm exec playwright install chromium
-pnpm test:e2e
-# The security workflow installs Gitleaks CLI v8.30.1 and scans full Git history.
-# It also builds and starts the opt-in containerized Compose profile, then smoke-tests /sign-in.
-```
+The exact commands, test counts, CI runs, tag target, historical release evidence and remaining verification gates live in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
-Database integration tests require a migrated PostgreSQL database. CI uses fictional local fixtures and does not call paid APIs or download ML models. Local verification passed frozen pnpm installation, Prettier, ESLint, 20 JavaScript unit tests, a zero-finding JavaScript audit, 12 Python tests, Ruff format/lint checks, and a Python dependency audit with no known vulnerabilities. Main-branch CI run `41416709489` passed the complete quality suite (including Prisma generation/migrations, seed-twice, integration/browser tests, and build), both dependency audits, full-history secret scan, Docker image builds, and container smoke test. Docker/PostgreSQL are unavailable in this sandbox and Prisma client generation cannot download the schema engine, so those checks were not run locally; CI verified them. See the [release proposal](docs/RELEASE_PROPOSAL.md) for the full record. Do not interpret the command list as saying every check passed locally.
+## Deployment and security boundary
 
-## Security, limitations, and next milestone
+SupportOps currently has no public deployment. Before any shared demo or production exposure:
 
-No email verification, production secret management, deployment, uploads, or production monitoring is configured. The current registration flow is a local foundation only. Do not store customer data or expose this service publicly. Read the [security threat model](docs/SECURITY.md) for additional gaps and release requirements.
+- disable public registration at both UI and API boundaries, or implement verified email, abuse controls and account recovery;
+- configure trusted proxy/IP handling, HTTPS, canonical origins and secure cookies;
+- keep PostgreSQL and the intelligence service private;
+- use managed secrets, reviewed migrations, backups, monitoring, rate limits and retention controls;
+- use only fictional, resettable demo data and never run the local seed in a real environment.
 
-M1–M5 are complete; M5 merged in PR #6 at `4c8d15c5c33b82e9eef7f1e8bc6bbacb287b8d34`, with main CI run `41416709489` passing. See the [milestone acceptance checklist](docs/PRODUCT_REQUIREMENTS.md), [changelog](CHANGELOG.md), and [release proposal](docs/RELEASE_PROPOSAL.md). The user authorized an annotated `v1.0.0` source tag only; no GitHub Release or deployment is part of this action. Milestones remain separate reviewable PRs and must not be merged without explicit user instruction.
+See [Deployment guidance](docs/DEPLOYMENT.md) and the [Security threat model](docs/SECURITY.md).
+
+## Documentation
+
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [Product requirements](docs/PRODUCT_REQUIREMENTS.md)
+- [Security threat model](docs/SECURITY.md)
+- [Deployment and operations guidance](docs/DEPLOYMENT.md)
+- [Verification record](docs/VERIFICATION.md)
+- [Architecture decision record](docs/DECISIONS/0001-architecture.md)
+- [Changelog](CHANGELOG.md)
+
+## License
+
+No open-source license is granted for this repository. The source is published for portfolio review; reuse, redistribution or derivative use requires explicit permission from the repository owner.
